@@ -1,0 +1,29 @@
+<bwlist>
+  <package name="java.lang">
+    <class name="Runnable">
+    </class>
+    <class name="Thr" prefix="true">
+    </class>
+  </package>
+  <package name="java.util" prefix="true">
+  </package>
+  <package name= "com.example">
+    <package name="foo">
+      <class name="MainActivity">
+        <constructor>
+        </constructor>
+        <method name="test">
+          <param type="int">
+          </param>
+        </method>
+        <method name="testing">
+        </method>
+        <method name="voiD">
+        <param type="*"></param>
+        </method>
+        <method name="do" prefix="true">
+        </method>
+      </class>
+    </package>
+  </package>
+</bwlist>

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+adb install -r target/magnum-suite.apk

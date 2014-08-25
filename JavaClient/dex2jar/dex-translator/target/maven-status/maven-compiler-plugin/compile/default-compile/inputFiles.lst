@@ -1,0 +1,17 @@
+/home/jesus/Documents/tuGraz/Master/2. Semester/Projekt ITS/magnumpi/JavaClient/dex2jar/dex-translator/src/main/java/com/googlecode/dex2jar/v3/IrMethod2AsmMethod.java
+/home/jesus/Documents/tuGraz/Master/2. Semester/Projekt ITS/magnumpi/JavaClient/dex2jar/dex-translator/src/main/java/com/googlecode/dex2jar/v3/V3.java
+/home/jesus/Documents/tuGraz/Master/2. Semester/Projekt ITS/magnumpi/JavaClient/dex2jar/dex-translator/src/main/java/com/googlecode/dex2jar/v3/Dex2AsmAnnotationAdapter.java
+/home/jesus/Documents/tuGraz/Master/2. Semester/Projekt ITS/magnumpi/JavaClient/dex2jar/dex-translator/src/main/java/com/googlecode/dex2jar/v3/Main.java
+/home/jesus/Documents/tuGraz/Master/2. Semester/Projekt ITS/magnumpi/JavaClient/dex2jar/dex-translator/src/main/java/com/googlecode/dex2jar/v3/DexExceptionHandlerImpl.java
+/home/jesus/Documents/tuGraz/Master/2. Semester/Projekt ITS/magnumpi/JavaClient/dex2jar/dex-translator/src/main/java/com/googlecode/dex2jar/v3/V3InnerClzGather.java
+/home/jesus/Documents/tuGraz/Master/2. Semester/Projekt ITS/magnumpi/JavaClient/dex2jar/dex-translator/src/main/java/com/googlecode/dex2jar/v3/Dex2jar.java
+/home/jesus/Documents/tuGraz/Master/2. Semester/Projekt ITS/magnumpi/JavaClient/dex2jar/dex-translator/src/main/java/com/googlecode/dex2jar/asm/OrderInnerOutterInsnNodeClassAdapter.java
+/home/jesus/Documents/tuGraz/Master/2. Semester/Projekt ITS/magnumpi/JavaClient/dex2jar/dex-translator/src/main/java/com/googlecode/dex2jar/v3/ClassVisitorFactory.java
+/home/jesus/Documents/tuGraz/Master/2. Semester/Projekt ITS/magnumpi/JavaClient/dex2jar/dex-translator/src/main/java/com/googlecode/dex2jar/asm/LdcOptimizeAdapter.java
+/home/jesus/Documents/tuGraz/Master/2. Semester/Projekt ITS/magnumpi/JavaClient/dex2jar/dex-translator/src/main/java/com/googlecode/dex2jar/asm/FieldAdapter.java
+/home/jesus/Documents/tuGraz/Master/2. Semester/Projekt ITS/magnumpi/JavaClient/dex2jar/dex-translator/src/main/java/com/googlecode/dex2jar/v3/DexExceptionHandler.java
+/home/jesus/Documents/tuGraz/Master/2. Semester/Projekt ITS/magnumpi/JavaClient/dex2jar/dex-translator/src/main/java/com/googlecode/dex2jar/v3/V3MethodAdapter.java
+/home/jesus/Documents/tuGraz/Master/2. Semester/Projekt ITS/magnumpi/JavaClient/dex2jar/dex-translator/src/main/java/com/googlecode/dex2jar/v3/V3ClassAdapter.java
+/home/jesus/Documents/tuGraz/Master/2. Semester/Projekt ITS/magnumpi/JavaClient/dex2jar/dex-translator/src/main/java/com/googlecode/dex2jar/v3/V3FieldAdapter.java
+/home/jesus/Documents/tuGraz/Master/2. Semester/Projekt ITS/magnumpi/JavaClient/dex2jar/dex-translator/src/main/java/com/googlecode/dex2jar/v3/AnnotationNode.java
+/home/jesus/Documents/tuGraz/Master/2. Semester/Projekt ITS/magnumpi/JavaClient/dex2jar/dex-translator/src/main/java/com/googlecode/dex2jar/v3/V3CodeAdapter.java
