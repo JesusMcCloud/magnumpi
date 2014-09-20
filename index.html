@@ -46,7 +46,7 @@
 
 
       <section id="main_content">
-        <p><img align="center" src="https://berndpruenster.org/magnum/magnum_front.png" width="100%" alt="Logo"></p>
+        <p><img align="center" src="images/magnum_front.png" width="100%" alt="Logo"></p>
 
 <h2>
 <a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h2>
@@ -89,7 +89,7 @@ Magnum PI has been successfully used to analyse the security of closed-source pa
 </p>
 <h3>Password Safe 1</h3>
 <p>
-<strong>Price:</strong> Free (Premium Version available)<br>
+<strong>Price:</strong> Free (premium version available)<br>
 <Strong>Installs:</Strong> 100 000 - 500 000<br>
 <p>Password Safe 1 is a purely offline App (no Internet permission) that protects various data (text documents, credentials, ...) using a master password.</p>
 <strong>Analysis Results:</strong> No KDF is used. If the password is shorter than 32 characters it is repeated until a string of 32 characters length is produced. This String is then used as 256 bit AES key.
@@ -106,7 +106,7 @@ This scheme allows for very efficient brute-force attacks, in part also because 
 
 <h3>Password Safe 3</h3>
 <p>
-<strong>Price:</strong> Free + In-App Purchases<br>
+<strong>Price:</strong> Free + in-app purchases<br>
 <Strong>Installs:</Strong> 1 000 000 - 5 000 000<br>
 <p>Password Safe 3 is a purely offline App (no Internet permission) that protects a set of credentials using a master password.</p>
 <strong>Analysis Results:</strong> Obfuscated Code makes analysis difficult. A custom KDF is used: The password is hashed 1000 times (without salt) using SHA-256. The resulting byte array is then used as input for a standard PBEKeySpec with a static 256 bit salt, a key length of 256 bits and 1024 iterations.<br>
@@ -115,10 +115,18 @@ Incomprehensible code has a high probability of being a sign of a flawed impleme
 
 <h3>Password Safe 4</h3>
 <p>
-<strong>Price:</strong> Free Trial, then $9,99<br>
+<strong>Price:</strong> Free trial, then $9,99<br>
 <Strong>Installs:</Strong> 100 000 - 500 000<br>
 <p>Password Safe 4 can be used offline, but also provides means of synchronising stored credentials between different devices. Stored credentials are protected by a master password.</p>
-<strong>Analysis Results:</strong> PBKDF2 with HMAC SHA-1 with 8000 iterations is used.
+<strong>Analysis Results:</strong> Bouncy Castle's PBKDF2 with HMAC SHA-1 with 8000 iterations is used. A randomly generated salt is also used, making this app highly secure.
+</p>
+
+<h3>File Encryption App 1</h3>
+<p>
+<strong>Price:</strong> Free, in-app purchases to donate<br>
+<Strong>Installs:</Strong> 10 000 - 50 000<br>
+<p>File Encryption App 1 enables users to encrypt arbitrary files using AES256 and stores them inside a so called vault which is protected by a password.</p>
+<strong>Analysis Results:</strong> No KDF is used. The AES key consists of the first 32 bytes of the password provided by the user (if the password is shorter, it is padded using zeros). No salt is used. Brute-force attacks, password precomputations and rainbow tables can be employed to guess the AES key.
 </p>
       </section>
 
