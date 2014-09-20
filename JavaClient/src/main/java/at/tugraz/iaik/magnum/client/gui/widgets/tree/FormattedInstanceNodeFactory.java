@@ -122,12 +122,18 @@ public class FormattedInstanceNodeFactory {
     if (clazz.isArray()) {
       int length = Array.getLength(data);
       returnString.append(clazz.getComponentType().getName()).append("[" + length + "]: [\n").append(indent);
-      if (clazz.getComponentType().getSimpleName().equalsIgnoreCase("Byte")
-          || clazz.getComponentType().getSimpleName().equals("Character")
-          || clazz.getComponentType().getSimpleName().equals("char")) {
+      if (clazz.getComponentType().getSimpleName().equalsIgnoreCase("Byte")){
         for (int i = 0; i < length; ++i) {
           Object element = Array.get(data, i);
           returnString.append(createPrimtiveString(element, false));
+          alreadyVisited.add(element);
+        }
+        return returnString.append("\n").append(indent).append("]").toString();
+      } else  if ( clazz.getComponentType().getSimpleName().equals("Character")
+          || clazz.getComponentType().getSimpleName().equals("char")) {
+        for (int i = 0; i < length; ++i) {
+          Object element = Array.get(data, i);
+          returnString.append(element);
           alreadyVisited.add(element);
         }
         return returnString.append("\n").append(indent).append("]").toString();
