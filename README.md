@@ -4,7 +4,7 @@
 <img src="figures/magnum_pi.png" alt="Logo"/><br>Magnum - Package Inspector
 </center>
 ## Introduction
-Magnum PI is a tool for live dynamic application analysis on Android.
+Magnum PI is a tool for live dynamic application analysis on Android developed at Graz University of Technology.   
 License: GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version. (For more information refer to the file COPYING.)
@@ -190,7 +190,7 @@ Before establishing a connection, a blacklist (or whitelist) of packages, classe
 #### Classes
 The left part of the classes window contains a tree displaying all classes that have been inspected, all methods and every method invocation, as well as method parameters and return values.
 The number of method invocations is not only displayed as a number next to the method, but also colour-coded using a logarithmic scale. This makes it possible to identify hot-spots -- code parts with high activity.
-Upon selecting a method, every invocation of this method is displayed in the right part of the classes window including the parameters passed and the return value. Furthermore the source code of the class of the currently selected method is shown in the Source Code window whenever the selection changes.    
+Upon selecting a method, every invocation of this method is displayed in the right part of the classes window including the parameters passed and the return value. Furthermore the source code of the class of the currently selected method is shown in the Source Code window whenever the selection changes.
 Right-clicking a method opens a menu making it possible to prevent individual methods from being hooked, or define a threshold (*Trigger*) of the number of invocations necessary before any logging takes place.
 Classes can also be blacklisted in the same manner, preventing them from being hooked at all. (See Figure 4)
 
