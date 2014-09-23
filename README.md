@@ -9,6 +9,8 @@ License: GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version. (For more information refer to the file COPYING.)
 
+For non-technical information, a demonstration and applications of Magnum PI, please visit [MagnumPI.org](http://magnumpi.org).
+
 As smartphones are ubiquitous and carry our most personal information they are not only viable targets for attacks, but security and correctness of applications are especially important on such devices.
 Furthermore Android's permission system is not only complex but in some cases not very expressive.
 
