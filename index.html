@@ -87,13 +87,13 @@ Magnum PI makes it possible to check if applications live up to the promise a hi
 
 <h2>
 <a name="demo" class="anchor" href="#demo"><span class="octicon octicon-link"></span></a>Demo</h2>
-<p>The following screencast illustrates how Magnum PI is used to dynamically analyse an Android application at runtime. In order not to discredit any apps that can be found on the Google Play Store, a rudimentary password safe was implemented specifically for demonstration purposes. As shown, this application features security problems often found in similar applications.</p>
-<p>In this screencast 'pfeffer' is used as the master password. The APK can be found <a href="badCryptor.apk">here</a> for anyone to dissect, to verify the results presented below (note that the password safe's user interface has some bugs and the overall architecture contains some anti-patterns).</p>
+<p>The following screencast illustrates how Magnum PI is used to dynamically analyse an Android application at runtime. In order not to discredit any apps that can be found on the Google Play Store, a rudimentary password safe was implemented specifically for demonstration purposes. As shown, this application features security problems often found in similar applications.</p><br>
 <iframe width="100%" height="315" src="https://www.youtube.com/embed/JqsCy4OkjI4" frameborder="0" allowfullscreen></iframe>
+<p>In this screencast 'pfeffer' is used as the master password. The APK can be found <a href="badCryptor.apk">here</a> for anyone to dissect, to verify the presented results (note that the password safe's user interface has some bugs and the overall architecture contains some anti-patterns).</p>
 <h2>
-<a name="analysis" class="anchor" href="#analysis"><span class="octicon octicon-link"></span></a>Analysis</h2>
+<a name="analysis" class="anchor" href="#analysis"><span class="octicon octicon-link"></span></a>Analysis Findings</h2>
 <p>
-Magnum PI has been successfully used to analyse the security of closed-source password safes on Android. An anonymised excerpt of the analysis results reveals that popular password safes often do not sufficiently protect users's credentials. If the number of app installs shown in the Google Play Store accurately reflect the number of users of a certain password safe, the following results lead to the conclusion that as of September 2014 millions of user credentials are not sufficiently protected:
+Magnum PI has been successfully used to assess the security of applications aimed at protecting sensitive data on Android. An anonymised excerpt of the analysis results reveals that popular password safes often do not sufficiently protect users's credentials. If the number of app installs shown in the Google Play Store accurately reflect the number of users of a certain password safe, the following results lead to the conclusion that as of September 2014 millions of user credentials are not sufficiently protected:
 </p>
 <h3>Password Safe 1</h3>
 <p>
