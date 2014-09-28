@@ -4,7 +4,7 @@
 <img src="figures/magnum_pi.png" alt="Logo"/><br>Magnum - Package Inspector
 </center>
 ## Introduction
-Magnum PI is a tool for live dynamic application analysis on Android developed at Graz University of Technology.   
+Magnum PI is a tool for live dynamic application analysis on Android developed at Graz University of Technology.
 License: GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version. (For more information refer to the file COPYING.)
@@ -19,7 +19,7 @@ For example, more and more people know not to reuse passwords but rather rely on
 Magnum PI makes it possible to check if applications live up to the promise a high level of security.
 
 ## Overview
-Magnum PI relies on the [XPosed](http://xposed.info/ "XPosed") framework to instrument application code at runtime. A client running on a PC called *Eve's Dropper*  (pun intended) processes the gathered information which includes:
+Magnum PI relies on the [Xposed](http://xposed.info/ "Xposed") framework to instrument application code at runtime. A client running on a PC called *Eve's Dropper*  (pun intended) processes the gathered information which includes:
 
 * The application's APK
 * All classes loaded during an applications life cycle
@@ -116,10 +116,10 @@ Apache Maven is used as the build system. Since Magnum PI consists of an Android
 # User Manual
 ## Installation
 Magnum PI consists of two parts: An Android application and a Java client running on the PC.
-The Android device needs to be running Android 4.0.3+, has to be rooted and to have  [XPosed](http://xposed.info/ "XPosed") installed. Java 1.7+ is required to run the client.
+The Android device needs to be running Android 4.0.3+, has to be rooted and to have  [Xposed](http://xposed.info/ "Xposed") installed. Java 1.7+ is required to run the client.
 
 ### On the Device
-The magnum-suite.apk has to be installed. Afterwards the Magnum PI XPosed module has to be activated and the device needs to be rebooted.
+The magnum-suite.apk has to be installed. Afterwards the Magnum PI Xposed module has to be activated and the device needs to be rebooted.
 
 ### On the PC
 No installation is required.
@@ -127,7 +127,7 @@ No installation is required.
 ## Usage
 ### Start-Up
 The device and the PC running the client need to be connected to the same network.
-Once the XPosed module is activated and a network connection is established on the device the Magnum service needs to be started (Magnum PI should show up in the App Drawer).
+Once the Xposed module is activated and a network connection is established on the device the Magnum service needs to be started (Magnum PI should show up in the App Drawer).
 The running service creates a persistent notification, displaying the device's IP address and the port, the service is listening on.
 Once the service is running the client can be started and connected to the service.
 
@@ -147,7 +147,7 @@ It is possible to export the gathered information at any time by clicking the *E
 * The specified black-/whitelist (if any); depending on whether blacklisting or pure whitelisting was chosen as mode of operation, the name of the black-/whitelist entry will be set accordingly
 
 ### Black-/Whitelist XML Format
-An example of the format can be found  [here](manual/sample.xml "XPosed"). Whether a definition applies to a package, class or method (constructor) depends on at which level the definition ends. If the attribute *prefix* is set (to any value) inside a package, class or method directive, the resulting declaration is set to be a prefix to be matched. Otherwise exact matching is performed.
+An example of the format can be found  [here](manual/sample.xml "Black-/Whitelist Sample"). Whether a definition applies to a package, class or method (constructor) depends on at which level the definition ends. If the attribute *prefix* is set (to any value) inside a package, class or method directive, the resulting declaration is set to be a prefix to be matched. Otherwise exact matching is performed.
 
 The provided sample XML matches the following:
 
@@ -228,11 +228,11 @@ This window shows individual Java classes, decompiled from the APK of the curren
 # Architecture
 As already sketched, Magnum PI consists of three parts:
 
-* An XPosed module, hooking methods
+* An Xposed module, hooking methods
 * An Android application and -service, handling communication between the client and the hook
 * An interactive graphical client run on a PC, receiving logged information
 
-Figure 8 depicts the overall architecture of the system: Code to log information gets injected into the application to be analysed using an XPosed module (the Magnum hook).
+Figure 8 depicts the overall architecture of the system: Code to log information gets injected into the application to be analysed using an Xposed module (the Magnum hook).
 The Magnum hook connects to the Magnum service running on the device using a Unix domain socket. The socket named after the application's name is only open if this application is set to be analysed. (This setting is stored at the service and can be changed in the client.)
 The service forwards all information received from the Magnum hook to a connected client. The service can handle multiple simultaneously active hooks, but the client can't (the service also does not forward any information to the client indicating which application is currently active).
 
