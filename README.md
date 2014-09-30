@@ -100,6 +100,7 @@ The following events are generated at runtime through the injected code:
 Generally, classes and methods used by Magnum PI cannot be logged as this would lead to infinite recursions. The java.lang package, for example, is off-limits. Because of this method invocations of classes like *StringBuilder* or *BufferedOutputStream* cannot be logged.
 
 Every application has an increased probability of crashing, when being analysed. One source of crashes or errors is different timing since most operations take longer due to the overhead introduced by Magnum PI.
+However, in almost all cases sensible blacklisting eliminates these problems.
 
 Sadly, the client can also crash due to bugs in the JVM (this manifests itself as a JVM segfault). There are ways to mitigate this behaviour. For example, it seems that the rendering pipeline is very sensitive: Calling *repaint()* outside of the AWT event queue at a high frequency (several hundred repaints per second) is a source of guaranteed crashes.
 
