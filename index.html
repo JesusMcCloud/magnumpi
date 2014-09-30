@@ -67,7 +67,7 @@ Furthermore Android's permission system is not only complex but in some cases no
 <p>Magnum PI provides a way to analyse Android applications at runtime, yielding comprehensive information about the inner workings of applications.
 For example, more and more people know not to reuse passwords but rather rely on a password safe. However, an insecure password safe (or worse: well disguised spyware) poses a threat. The Google Play Store offers lots of different password safes all of which are praised by their developers as <em>the best, most secure</em> one of all.
 Magnum PI makes it possible to check if applications live up to the promise a high level of security.<br>
-However, analysing password safes and file vaults is only one of many possible applications of Magnum PI. It is also possible to discover leakage of personal information and find out if apps transmit user data, IMEI, IMSI, &hellip; without the user's consent. Yet, these are only examples, as Magnum PI is a very generic tool that enables general purpose application analysis, making it possible to gain whichever insights are sought after.
+However, analysing password safes and file vaults is only one of many possible applications of Magnum PI. It is also possible to discover leakage of personal information and to find out if apps transmit user data, IMEI, IMSI,&nbsp; &hellip; without the user's consent or if the external storage is not only used for savegames, but also to readout photos and documents. Yet, these are only examples, as Magnum PI is a very generic tool that enables general purpose application analysis, making it possible to gain whichever insights are sought after.
 </p>
 
 <p>Magnum PI relies on the <a href="http://xposed.info/" title="Xposed">Xposed</a> framework to instrument application code at runtime. A client running on a PC called <em>Eve's Dropper</em>  (pun intended) processes the gathered information which includes:</p>
@@ -135,7 +135,7 @@ Incomprehensible code has a high probability of being a sign of a flawed impleme
 <p>
 <strong>Price:</strong> Free, in-app purchases to donate<br>
 <Strong>Installs:</Strong> 10 000 - 50 000<br>
-<p>File Encryption pp 1 enables users to encrypt arbitrary files using AES256 and stores them inside a so called vault which is protected by a password.</p>
+<p>File Encryption app 1 enables users to encrypt arbitrary files using AES256 and stores them inside a so called vault which is protected by a password.</p>
 <strong>Analysis Results:</strong> No KDF is used. The AES key consists of the first 32 bytes of the password provided by the user (if the password is shorter, it is padded using zeros). No salt is used. Brute-force attacks, password precomputations and rainbow tables can be employed to guess the AES key.
 </p>
 
