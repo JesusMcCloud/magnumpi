@@ -4,7 +4,7 @@
 <img src="figures/magnum_pi.png" alt="Logo"/><br>Magnum - Package Inspector
 </center>
 ## Introduction
-Magnum PI is a tool for live dynamic application analysis on Android developed at Graz University of Technology.
+Magnum PI is a tool for live dynamic application analysis on Android developed at the [Institute for Applied Information Processing and Communications (IAIK)](http://www.iaik.tugraz.at/) at Graz University of Technology.
 License: GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version. (For more information refer to the file COPYING.)
