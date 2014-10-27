@@ -13,10 +13,10 @@
   </properties>
 
   <repositories>
- <!--   <repository>
+    <repository>
       <id>Dex2jar Repo</id>
       <url>http://repository-dex2jar.forge.cloudbees.com/release/</url>
-    </repository>-->
+    </repository>
     <repository>
       <id>project.local</id>
       <name>project</name>

@@ -16,6 +16,6 @@
   <modules>
     <module>MagnumApp/</module>
     <module>JavaClient/</module>
-    <module>JavaClient/dex2jar/</module>
+   <!-- <module>JavaClient/dex2jar/</module> -->
   </modules>
 </project>
