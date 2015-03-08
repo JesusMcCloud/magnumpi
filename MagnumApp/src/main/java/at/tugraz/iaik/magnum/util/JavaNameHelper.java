@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright 2013 Alexander Jesner, Bernd Prünster
- * Copyright 2013, 2014 Bernd Prünster
+ * Copyright 2013 Alexander Jesner, Bernd PrÃ¼nster
+ * Copyright 2013, 2014 Bernd PrÃ¼nster
  *
  *     This file is part of Magnum PI.
  *
@@ -19,6 +19,7 @@
  *******************************************************************************/
 package at.tugraz.iaik.magnum.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class JavaNameHelper {
@@ -79,6 +80,52 @@ public class JavaNameHelper {
     if (lastIndex < 0)
       return fqmn;
     return fqmn.substring(0, lastIndex);
+  }
+  
+  public static List<String> getParameters(String parameterString) {
+	  
+	  String[] params;
+	  
+	  List<String> list = new ArrayList<String>();
+	  
+	  if(parameterString.length() <= 0)
+		  return list;
+	  
+	  if(parameterString.contains(",")) {
+		  params = parameterString.split(",");
+	  }
+	  else {
+		  params = new String[] { parameterString };
+	  }
+		  
+	  for( String param : params) {
+		  param = param.trim();
+		  
+		  if(param.charAt(0) == '"') {
+			  // is String
+			  param = param.substring(1, param.indexOf("\"", 1) );
+		  } else {
+			  // is type
+			  if(param.contains(":")) {
+				  param = param.substring(param.indexOf(":"));
+				  param = param.substring(param.indexOf("[") + 1);
+				  param = param.substring(0, param.lastIndexOf("]")).trim();
+			  } else if(param.startsWith("(null)") ) {
+				  param = "";
+			  } else if(param.contains("{")) {
+				  param = param.substring(param.indexOf("{") + 1);
+				  param = param.substring(0, param.lastIndexOf("}")).trim();
+			  } else {
+
+			  }
+
+		  }
+		  
+		  if(!list.contains(param) && param.length() > 0)
+			  list.add(param);
+	  }
+	  
+	  return list;
   }
 
 }
