@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright 2013 Alexander Jesner, Bernd Prünster
- * Copyright 2013, 2014 Bernd Prünster
+ * Copyright 2013 Alexander Jesner, Bernd PrÃ¼nster
+ * Copyright 2013, 2014 Bernd PrÃ¼nster
  *
  *     This file is part of Magnum PI.
  *
@@ -19,6 +19,7 @@
  *******************************************************************************/
 package at.tugraz.iaik.magnum.dataprocessing;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 import java.util.jar.JarFile;
@@ -32,5 +33,7 @@ public interface IMoustacheClassLoader {
   public abstract void waitForInitialization() throws InterruptedException;
 
   public abstract Set<JarFile> getJarFiles();
+  
+  public void ApkFileImport(File apkFile) throws IOException;
 
 }
