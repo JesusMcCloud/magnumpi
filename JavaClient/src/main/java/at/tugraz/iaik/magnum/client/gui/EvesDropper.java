@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright 2013 Alexander Jesner, Bernd Prﾃｼnster
- * Copyright 2013, 2014 Bernd Prﾃｼnster
+ * Copyright 2013 Alexander Jesner, Bernd Prünster
+ * Copyright 2013, 2014 Bernd Prünster
  *
  *     This file is part of Magnum PI.
  *
@@ -42,42 +42,26 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import javafx.util.Pair;
 
 import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultListModel;
-import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -91,7 +75,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -111,7 +94,6 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 
 import at.tugraz.iaik.magnum.client.cg.CallGraph;
-import at.tugraz.iaik.magnum.client.cg.CallGraphNode;
 import at.tugraz.iaik.magnum.client.conf.ConfFile;
 import at.tugraz.iaik.magnum.client.conf.RuntimeConfig;
 import at.tugraz.iaik.magnum.client.db.IDBUtil;
@@ -155,11 +137,9 @@ import at.tugraz.iaik.magnum.model.LogMessageModel;
 import at.tugraz.iaik.magnum.model.MethodInvocationModel;
 import at.tugraz.iaik.magnum.model.MethodModel;
 import at.tugraz.iaik.magnum.model.PackageConfigModel;
-import at.tugraz.iaik.magnum.util.JavaNameHelper;
 
 import com.google.inject.Inject;
 import com.google.inject.Module;
-import com.strobel.assembler.Collection;
 
 public class EvesDropper {
 
@@ -174,8 +154,7 @@ public class EvesDropper {
   private JToolBar                     jtbStatus;
   private JLabel                       jlbStatus;
   private LogMessageTableModel         logTableModel;
-  private TimelineTableModel           timelineTableModel, passwordTableModel, 
-  									   functionInvocation, differentFunctionInvocation;
+  private TimelineTableModel           timelineTableModel;
   private ClassTreeModel               classTreeModel;
   private InvocationTreeModel          invocationTreeModel;
   private CallGraph                    callGraph;
@@ -192,7 +171,6 @@ public class EvesDropper {
   private CustomBorderedInternalFrame  jifTimeline;
   private CustomBorderedInternalFrame  jifHooker;
   private CustomBorderedInternalFrame  jifBWList;
-  private CustomBorderedInternalFrame  jifImport;
   private JRadioButton                 jrbPureWhiteList;
   private JRadioButton                 jrbRegularMode;
   private JTextArea                    jtaBlackWhiteList;
@@ -200,14 +178,6 @@ public class EvesDropper {
   private JTextArea                    jtaInvocationDetail;
   private JScrollPane                  jspHooks;
   private JScrollPane                  jspTimeline;
-  private JList				   		   jLstPasswords;
-  private JScrollPane				   jspPasswords;
-  private JTable 					   jtbPasswordTimeline;
-  private JScrollPane				   jspPasswordTimeline;
-  private JTable 					   jtbFunctionInvocation;
-  private JScrollPane 				   jspFunctionInvocation;
-  private JTable					   jtbDifferentFunctionInvocation;
-  private JScrollPane				   jspDifferentFunctionInvocation;
 
   private PackageConfigTableModel      hookTableModel;
   private ClassTreeMouseListener       classTreeMouseListener;
@@ -219,14 +189,10 @@ public class EvesDropper {
   private Communication                networkCommunication;
   private final IDBUtil                dbUtil;
 
-  private InvocationTrace              jungGraph;
+  private InvocationTrace                 jungGraph;
   private DecompileWrapper             decompileWrapper;
 
   private boolean                      globalWBList;
-  private DefaultListModel<String>	   passwordList;
-  
-  private List<DBInvocation> 		   invocationList;
-  private DBInvocation 				   origin;
 
   public static void main(String[] args) {
     EventQueue.invokeLater(new Runnable() {
@@ -407,7 +373,6 @@ public class EvesDropper {
     setupJIFTimeline();
     setupJIFHooker();
     setupJIFBWList();
-    setupJIFImport();
 
     createJIFButton(jifLog);
     createJIFButton(jifHooker);
@@ -416,7 +381,6 @@ public class EvesDropper {
     createJIFButton(jifSourceCode);
     createJIFButton(jifTimeline);
     createJIFButton(jifBWList);
-    createJIFButton(jifImport);
 
   }
 
@@ -462,19 +426,6 @@ public class EvesDropper {
           } catch (Exception e) {
 
           }
-        
-        //export Apk file
-        Set<JarFile> jarFiles = moustacheClassLoader.getJarFiles();
-        
-        for ( JarFile jar: jarFiles)
-        {
-        	File file = new File(jar.getName());
-        	File tmpApk = new File(tmpExport.getAbsolutePath() + File.separator + file.getName());
-        	Files.copy(file.toPath(), tmpApk.toPath());
-        }
-        
-
-        
         File[] files = tmpExport.listFiles();
         ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(destFile));
         FileInputStream tmpIn;
@@ -782,132 +733,12 @@ public class EvesDropper {
         synchronized (callGraph) {
           callGraph.clear();
           long id = (long) timelineTableModel.getInvocationAt(sel).getId();
-          dbUtil.createInvocationTrace(null, callGraph, id, true);
-          dbUtil.createInvocationTrace(null, callGraph, id, false);
+          dbUtil.createInvocationTrace(callGraph, id, true);
+          dbUtil.createInvocationTrace(callGraph, id, false);
           callGraph.selectNode(id);
           jungGraph.draw();
         }
       }
-    });
-    
-    jtbTimeline.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mouseReleased(MouseEvent e) {
-        	
-        	final int column = jtbTimeline.columnAtPoint(e.getPoint());
-            int r = jtbTimeline.rowAtPoint(e.getPoint());
-            
-            if (r >= 0 && r < jtbTimeline.getRowCount()) {
-            	jtbTimeline.setRowSelectionInterval(r, r);
-            } else {
-            	jtbTimeline.clearSelection();
-            }
-
-            int rowindex = jtbTimeline.getSelectedRow();
-            if (rowindex < 0 && column < jtbTimeline.getColumnCount())
-                return;
-            if (e.isPopupTrigger() && e.getComponent() instanceof JTable ) {
-                JPopupMenu popupmenu = new JPopupMenu();
-                final String content = (String)( (TimelineTableModel)jtbTimeline.getModel()).getValueAt(rowindex, column);
-                
-                JMenuItem hideItem = new JMenuItem("Hide all: " + content);
-                hideItem.addActionListener(new ActionListener() {
-            		@Override
-            		public void actionPerformed(ActionEvent e) {
-            			try {
-							dbUtil.hideTimeLineItems(jtbTimeline.getColumnName(column), content, 1);
-						} catch (SQLException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-            		}
-            		});
-                
-                JMenuItem selectItem = new JMenuItem("Select Only: " + content);
-                selectItem.addActionListener(new ActionListener() {
-            		@Override
-            		public void actionPerformed(ActionEvent e) {
-            			try {
-							dbUtil.hideTimeLineItems(jtbTimeline.getColumnName(column), content, 0);
-						} catch (SQLException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-            		}
-            		});
-                
-                JMenuItem restoreItem = new JMenuItem("Restore");
-                restoreItem.addActionListener(new ActionListener() {
-            		@Override
-            		public void actionPerformed(ActionEvent e) {
-            			
-            			try {
-							dbUtil.hideTimeLineItems(jtbTimeline.getColumnName(column), content, 2);
-						} catch (SQLException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-            		}
-            		});
-                
-                popupmenu.add(hideItem);
-                popupmenu.add(selectItem);
-                popupmenu.addSeparator();
-                popupmenu.add(restoreItem);
-                popupmenu.addSeparator();
-                
-            	if(column == 3) {
-            		List<String> paramList = JavaNameHelper.getParameters(content);
-            		
-            		if(paramList.size() > 0)
-            		{
-            			JMenuItem jmenuDes = new JMenuItem("Add to Password");
-            			jmenuDes.setEnabled(false);
-            			popupmenu.add(jmenuDes);
-        				popupmenu.addSeparator();
-            			
-            			for(final String item : paramList) {
-            				JMenuItem jmenuItem = new JMenuItem(item);
-            				jmenuItem.addActionListener(new ActionListener() {
-        	            		@Override
-        	            		public void actionPerformed(ActionEvent e) {
-        	            			 if(!passwordList.contains(item))
-        	            				  passwordList.addElement(item);
-        	            			 }
-        	            		});
-            				
-            				popupmenu.add(jmenuItem);
-            			}
-            		}
-            		
-            	} else if(column == 4) {
-            		
-            		List<String> paramList = JavaNameHelper.getParameters(content);
-            		
-            		if(paramList.size() > 0)
-            		{
-            			JMenuItem jmenuDes = new JMenuItem("Add to Password");
-            			jmenuDes.setEnabled(false);
-            			JMenuItem jmenuItem = new JMenuItem(paramList.get(0));
-        				jmenuItem.addActionListener(new ActionListener() {
-    	            		@Override
-    	            		public void actionPerformed(ActionEvent e) {
-    	            			 if(!passwordList.contains(content))
-    	            				  passwordList.addElement(content);
-    	            			 }
-    	            		});
-        				popupmenu.add(jmenuDes);
-        				popupmenu.addSeparator();
-        				popupmenu.add(jmenuItem);
-            		}
-            	}
-                
-                
-                
-                
-                popupmenu.show(e.getComponent(), e.getX(), e.getY());
-            }
-        }
     });
 
     jtfFilterTimeline = new HistoryTextField();
@@ -1000,7 +831,7 @@ public class EvesDropper {
   }
 
   private void setupJIFBWList() {
-    jifBWList = new CustomBorderedInternalFrame("Black窶�/Whitelist");
+    jifBWList = new CustomBorderedInternalFrame("Black–/Whitelist");
     try {
       jifBWList.setFrameIcon(GuiConstants.ICON_BW);
     } catch (Exception e) {
@@ -1058,345 +889,6 @@ public class EvesDropper {
     jifBWList.add(jspBWList, BorderLayout.CENTER);
     desktopPane.add(jifBWList);
     jifBWList.setVisible(true);
-    
-  }
-  
-  private void setupJIFImport() {
-	  jifImport = new CustomBorderedInternalFrame("Import");
-	  try {
-		  jifImport.setFrameIcon(GuiConstants.ICON_BW);
-	  } catch (Exception e) {
-	  }
-	  jifImport.setLayout(new BorderLayout());
-	  jifImport.setResizable(true);
-	  jifImport.setMaximizable(true);
-	  jifImport.setIconifiable(true);
-	  jifImport.setClosable(false);
-	  jifImport.setBounds(50, 300, 400, 300);
-	  
-	  passwordList = new DefaultListModel<String>();
-	  passwordTableModel = new TimelineTableModel();
-	  functionInvocation = new TimelineTableModel();
-	  differentFunctionInvocation = new TimelineTableModel();
-	  
-	  invocationList = new ArrayList<DBInvocation>();
-	  origin = null;
-	  
-	  JButton jbuImport = new JButton("Import");
-	  
-	  jbuImport.addActionListener(new ActionListener() {
-	      @Override
-	      public void actionPerformed(ActionEvent e) {
-	    	  // import data
-	    	  try {
-	    		  Path folder = importUnzip();
-	    		  if(folder == null) return;
-	    		  
-	            	// Import Apk files
-	            	System.out.println("Import apk files");
-	            	File outputDir = new File(folder.toString());
-	            	
-	            	File []jarFiles = 
-	            			outputDir.listFiles(new FilenameFilter() { 
-	            				public boolean accept(File outputDir, String filename)
-	            				{ return filename.endsWith(".jar"); }
-	            			} );
-	            	
-	            	if(jarFiles.length > 0)
-	            		moustacheClassLoader.ApkFileImport(jarFiles[0]);
-	            	
-	            	System.out.println("Import apk done");
-	            	
-	            	
-	            	System.out.println("Import database");
-	            	File dbFile = new File(folder.toString() + File.separator + "magnum.sqlite");
-	            	
-	            	if(!dbFile.exists())
-	            	{
-	            		System.out.println("Databasefile doesn't exist");
-	            		return;
-	            	}
-	            	dbUtil.dbImport(dbFile.getAbsolutePath());
-	            	System.out.println("Import Done");
-	            	
-	            	findPasswords();
-	            	
-	            	
-	            
-	            } catch (IOException e1) {
-	              // TODO Auto-generated catch block
-	              e1.printStackTrace();
-	            }
-	          }
-	  });
-	  
-	  
-	  JButton jbuFindPasswords = new JButton("Find Passwords");
-	  
-	  jbuFindPasswords.addActionListener(new ActionListener() {
-	      @Override
-	      public void actionPerformed(ActionEvent e) {
-	    	  findPasswords();
-	      }
-	  });
-	  
-	  jLstPasswords = new JList<String>(passwordList);
-	  jspPasswords = new JScrollPane(jLstPasswords);
-	  jLstPasswords.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-	  //jLstPasswords.setLayoutOrientation(JList.HORIZONTAL_WRAP);
-	  jLstPasswords.setVisible(true);
-	  jLstPasswords.setVisibleRowCount(20);
-	  
-	  jLstPasswords.getSelectionModel().addListSelectionListener(
-			  new ListSelectionListener() {
-				  public void valueChanged(ListSelectionEvent e) {
-					  String value = (String)jLstPasswords.getSelectedValue();
-					  passwordTableModel.setContent(dbUtil.findPasswords(value));
-					  doRepaint(jspPasswordTimeline);
-				  }
-			  });
-	   
-	  
-	  jtbPasswordTimeline = new JTable();
-	  jspPasswordTimeline = new JScrollPane(jtbPasswordTimeline);
-	  jspPasswordTimeline.setViewportView(jtbPasswordTimeline);
-	  jtbPasswordTimeline.setFillsViewportHeight(true);
-	  jtbPasswordTimeline.setModel(passwordTableModel);
-	  
-	  jtbPasswordTimeline.getColumnModel().getColumn(0).setPreferredWidth(20);
-	  jtbPasswordTimeline.getColumnModel().getColumn(1).setPreferredWidth(150);
-	  jtbPasswordTimeline.getColumnModel().getColumn(2).setPreferredWidth(130);
-	  jtbPasswordTimeline.getColumnModel().getColumn(3).setPreferredWidth(200);
-	  jtbPasswordTimeline.getColumnModel().getColumn(4).setPreferredWidth(200);
-	  jtbPasswordTimeline.getColumnModel().getColumn(0).setMinWidth(20);
-	  jtbPasswordTimeline.getColumnModel().getColumn(0).setMaxWidth(20);
-	  jtbPasswordTimeline.setVisible(true);
-	  
-	  jtbPasswordTimeline.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-	      public void valueChanged(ListSelectionEvent e) {
-	        int sel = jtbPasswordTimeline.getSelectedRow();
-	        
-	        invocationList.clear();
-
-	        synchronized (callGraph) {
-	          callGraph.clear();
-	          origin = passwordTableModel.getInvocationAt(sel);
-	          long id = (long) origin.getId();
-	          dbUtil.createInvocationTrace(invocationList, callGraph, id, true);
-	          dbUtil.createInvocationTrace(invocationList, callGraph, id, false);
-	          callGraph.selectNode(id);
-	          jungGraph.draw();
-	          
-	          sortDBInvocationList(invocationList);
-	          functionInvocation.setContent(invocationList);
-	          doRepaint(jspFunctionInvocation);
-	        }
-	        
-          if(dbUtil.isConnectionDiffSet())
-          {
-        	  List<DBInvocation> diffList = findInvocationDiff(invocationList, origin);
-        	  differentFunctionInvocation.setContent(diffList);
-        	  doRepaint(jspDifferentFunctionInvocation);
-          }
-
-	        
-	      }
-	    });
-	  
-	  jtbPasswordTimeline.addMouseListener(new MouseAdapter() {
-	        @Override
-	        public void mouseReleased(MouseEvent e) {
-	        	
-	        	final int column = jtbPasswordTimeline.columnAtPoint(e.getPoint());
-	            int r = jtbPasswordTimeline.rowAtPoint(e.getPoint());
-	            
-	            if (r >= 0 && r < jtbTimeline.getRowCount()) {
-	            	jtbPasswordTimeline.setRowSelectionInterval(r, r);
-	            } else {
-	            	jtbPasswordTimeline.clearSelection();
-	            }
-
-	            int rowindex = jtbPasswordTimeline.getSelectedRow();
-	            if (rowindex < 0 && column < jtbPasswordTimeline.getColumnCount())
-	                return;
-	            if (e.isPopupTrigger() && e.getComponent() instanceof JTable ) {
-	            	
-	            	final String content = (String)( (TimelineTableModel)jtbPasswordTimeline.getModel()).getValueAt(rowindex, column);
-	            	
-	            	if(column == 3) {
-	            		List<String> paramList = JavaNameHelper.getParameters(content);
-	            		
-	            		if(paramList.size() > 0)
-	            		{
-	            			JPopupMenu popupmenu = new JPopupMenu();
-	            			JMenuItem jmenuDes = new JMenuItem("Add to Password");
-	            			jmenuDes.setEnabled(false);
-	            			popupmenu.add(jmenuDes);
-            				popupmenu.addSeparator();
-	            			
-	            			for(final String item : paramList) {
-	            				JMenuItem jmenuItem = new JMenuItem(item);
-	            				jmenuItem.addActionListener(new ActionListener() {
-	        	            		@Override
-	        	            		public void actionPerformed(ActionEvent e) {
-	        	            			 if(!passwordList.contains(item))
-	        	            				  passwordList.addElement(item);
-	        	            			 }
-	        	            		});
-	            				
-	            				popupmenu.add(jmenuItem);
-	            			}
-	            			popupmenu.show(e.getComponent(), e.getX(), e.getY());
-	            		}
-	            		
-	            	} else if(column == 4) {
-	            		
-	            		List<String> paramList = JavaNameHelper.getParameters(content);
-	            		
-	            		if(paramList.size() > 0)
-	            		{
-	            			JPopupMenu popupmenu = new JPopupMenu("Add to Password");
-	            			JMenuItem jmenuDes = new JMenuItem("Add to Password");
-	            			jmenuDes.setEnabled(false);
-	            			JMenuItem jmenuItem = new JMenuItem(paramList.get(0));
-            				jmenuItem.addActionListener(new ActionListener() {
-        	            		@Override
-        	            		public void actionPerformed(ActionEvent e) {
-        	            			 if(!passwordList.contains(content))
-        	            				  passwordList.addElement(content);
-        	            			 }
-        	            		});
-            				popupmenu.add(jmenuDes);
-            				popupmenu.addSeparator();
-            				popupmenu.add(jmenuItem);
-            				popupmenu.show(e.getComponent(), e.getX(), e.getY());
-	            		}
-	            	} 
-	
-	            }
-	        }
-	  });
-	  
-	  JButton jbuImport2 = new JButton("Import 2nd DB");
-	  jbuImport2.addActionListener(new ActionListener() {
-	      @Override
-	      public void actionPerformed(ActionEvent e) {
-	    	  // import data
-	    	  try {
-	    		Path folder = importUnzip();
-	    		
-	    		if(folder == null) return;
-            	
-            	System.out.println("Import database");
-            	File dbFile = new File(folder.toString() + File.separator + "magnum.sqlite");
-            	
-            	if(!dbFile.exists())
-            	{
-            		System.out.println("Databasefile doesn't exist");
-            		return;
-            	}
-            	dbUtil.dbImportDifferentDB(dbFile.getAbsolutePath());
-            	System.out.println("Import Done");	
-	            
-	            } catch (IOException e1) {
-	              // TODO Auto-generated catch block
-	              e1.printStackTrace();
-	            }
-	          }
-	            
-	  	});
-	  
-	  
-	  jtbFunctionInvocation = new JTable();
-	  jspFunctionInvocation = new JScrollPane(jtbFunctionInvocation, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	  jspFunctionInvocation.setViewportView(jtbFunctionInvocation);
-	  jtbFunctionInvocation.setFillsViewportHeight(true);
-	  jtbFunctionInvocation.setModel(functionInvocation);
-	  
-	  jtbFunctionInvocation.getColumnModel().getColumn(0).setPreferredWidth(20);
-	  jtbFunctionInvocation.getColumnModel().getColumn(1).setPreferredWidth(150);
-	  jtbFunctionInvocation.getColumnModel().getColumn(2).setPreferredWidth(130);
-	  jtbFunctionInvocation.getColumnModel().getColumn(3).setPreferredWidth(200);
-	  jtbFunctionInvocation.getColumnModel().getColumn(4).setPreferredWidth(200);
-	  jtbFunctionInvocation.getColumnModel().getColumn(0).setMinWidth(20);
-	  jtbFunctionInvocation.getColumnModel().getColumn(0).setMaxWidth(20);
-	  jtbFunctionInvocation.setVisible(true);
-	  jtbFunctionInvocation.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-	  
-	  
-	  jtbDifferentFunctionInvocation = new JTable();
-	  jspDifferentFunctionInvocation = new JScrollPane(jtbDifferentFunctionInvocation, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	  jspDifferentFunctionInvocation.setViewportView(jtbDifferentFunctionInvocation);
-	  jtbDifferentFunctionInvocation.setFillsViewportHeight(true);
-	  jtbDifferentFunctionInvocation.setModel(differentFunctionInvocation);
-	  
-	  jtbDifferentFunctionInvocation.getColumnModel().getColumn(0).setPreferredWidth(20);
-	  jtbDifferentFunctionInvocation.getColumnModel().getColumn(1).setPreferredWidth(150);
-	  jtbDifferentFunctionInvocation.getColumnModel().getColumn(2).setPreferredWidth(130);
-	  jtbDifferentFunctionInvocation.getColumnModel().getColumn(3).setPreferredWidth(200);
-	  jtbDifferentFunctionInvocation.getColumnModel().getColumn(4).setPreferredWidth(200);
-	  jtbDifferentFunctionInvocation.getColumnModel().getColumn(0).setMinWidth(20);
-	  jtbDifferentFunctionInvocation.getColumnModel().getColumn(0).setMaxWidth(20);
-	  jtbDifferentFunctionInvocation.setVisible(true);
-	  jtbDifferentFunctionInvocation.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-	  
-	  
-	  
-	  JPanel jpTop = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
-	  jpTop.add(jbuImport);
-	  jpTop.add(jbuFindPasswords);
-	  jpTop.add(jbuImport2);
-	  jifImport.add(jpTop, BorderLayout.NORTH);
-	  
-	  JPanel jpBot = new JPanel();
-	  GroupLayout groupLayout = new GroupLayout(jpBot);
-	  jpBot.setLayout(groupLayout);
-	  groupLayout.setAutoCreateGaps(true);
-	  groupLayout.setAutoCreateContainerGaps(true);
-	  
-	  groupLayout.setHorizontalGroup(groupLayout
-			  .createParallelGroup(GroupLayout.Alignment.LEADING)
-			  	   .addGroup(groupLayout.createSequentialGroup()
-			  		   .addComponent(jspPasswords, 0, GroupLayout.DEFAULT_SIZE, 200)
-			  		   .addComponent(jspPasswordTimeline))
-			  	);
-	  
-	  groupLayout.setVerticalGroup(groupLayout.createSequentialGroup()
-			    .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-			        .addComponent(jspPasswords)
-			        .addComponent(jspPasswordTimeline)));
-	  
-	  jifImport.add(jpBot, BorderLayout.CENTER);
-	  
-	  // Bottom
-	  JPanel jpBottom = new JPanel(new BorderLayout());
-	  GroupLayout bottomGroupLayout = new GroupLayout(jpBottom);
-	  jpBottom.setLayout(bottomGroupLayout);
-	  bottomGroupLayout.setAutoCreateGaps(true);
-	  bottomGroupLayout.setAutoCreateContainerGaps(true);
-	  
-	  bottomGroupLayout.setHorizontalGroup(bottomGroupLayout
-			  .createParallelGroup(GroupLayout.Alignment.LEADING)
-			  	   .addGroup(bottomGroupLayout.createSequentialGroup()
-			  		   .addComponent(jspFunctionInvocation)
-			  		   .addComponent(jspDifferentFunctionInvocation))
-			  	);
-	  
-	  bottomGroupLayout.setVerticalGroup(bottomGroupLayout.createSequentialGroup()
-			    .addGroup(bottomGroupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-			        .addComponent(jspFunctionInvocation)
-			        .addComponent(jspDifferentFunctionInvocation)));
-	  
-	  
-	  jpBottom.setPreferredSize(new Dimension(100, 350));
-	  //jpBottom.add(jspFunctionInvocation, BorderLayout.WEST);
-	  //jpBottom.add(jspDifferentFunctionInvocation, BorderLayout.EAST);
-	  jifImport.add(jpBottom, BorderLayout.SOUTH);
-	  
-	  desktopPane.add(jifImport);
-	  jifImport.setVisible(true);
-	  
-	  
   }
 
   private void onConnect(String[] addr) throws IOException {
@@ -1455,17 +947,12 @@ public class EvesDropper {
               type = TYPE.valueOf(Character.toString(aLine.charAt(0)));
             } catch (Exception e) {
             }
-            
-            if (aLine.length() >= 1)
-            {
-	            	String[] line = aLine.charAt(1) == '/' ? aLine.substring(2).split(":", 2) : aLine.split(":", 2);
-	            
-	            if (!line[0].contains("StrictMode")) {
-	              if (line.length < 2)
-	                logTableModel.addLogMessage(type, "", aLine);
-	              else
-	                logTableModel.addLogMessage(type, line[0], line[1]);
-	            }
+            String[] line = aLine.charAt(1) == '/' ? aLine.substring(2).split(":", 2) : aLine.split(":", 2);
+            if (!line[0].contains("StrictMode")) {
+              if (line.length < 2)
+                logTableModel.addLogMessage(type, "", aLine);
+              else
+                logTableModel.addLogMessage(type, line[0], line[1]);
             }
           }
         } catch (IOException e) {
@@ -1535,7 +1022,7 @@ public class EvesDropper {
 
   private void loadWindowStates() {
     Component[] components = { frmEvesDropper, jifCallGraph, jifClasses, jifSourceCode, jifLog, jifHooker, jifTimeline,
-        jifBWList, jifImport };
+        jifBWList };
     WindowStateManager.load(components);
   }
 
@@ -1651,156 +1138,6 @@ public class EvesDropper {
       decompile(methodName, false);
     }
   };
-  
-  public void findPasswords()
-  {
-	  Pair<String, String> pair1 = new Pair<String, String>("javax.crypto.spec.SecretKeySpec", "<init>");
-	  List<Pair<String, String>> list = new ArrayList<Pair<String, String>>();
-	  list.add(pair1);
-	  
-	  List<DBInvocation> dbInvocationPre = new ArrayList<DBInvocation>();
-	  
-	  for( Pair<String, String> mPair : list) {
-		  try {
-			  dbInvocationPre.addAll(dbUtil.findPasswords(mPair.getKey(), mPair.getValue()));
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		  
-		  
-		  
-	  }
-	  System.out.println(dbInvocationPre.size() + " Passwords found");
-	  
-
-	  //List<DBInvocation> dbInvocationPost = new ArrayList<DBInvocation>();
-	  
-	  for(DBInvocation dbInvocation : dbInvocationPre) {
-		  //System.out.println(dbInvocation.getParamString());
-		  List<String> paramList = JavaNameHelper.getParameters(dbInvocation.getParamString());
-		  String password = paramList.get(0);
-		  
-		  if(!passwordList.contains(password))
-			  passwordList.addElement(password);
-		  
-		  
-		  //dbInvocationPost.addAll(dbUtil.findPasswords(password));
-		  
-	  } 
-	  
-	
-	  
-  }
-  
-private Path importUnzip() throws IOException {
-	
-	Path folder = null;
-	
-	JFileChooser jfc = new JFileChooser();
-    int res = jfc.showOpenDialog(null);
-    if (res == JFileChooser.APPROVE_OPTION) {
-      	
-      	folder = Files.createTempDirectory("magnum");
-      	
-      	//get the zip file content
-      	ZipInputStream zis = 
-      		new ZipInputStream(
-      				new FileInputStream(jfc.getSelectedFile().getCanonicalPath()));
-      	
-      	//get the zipped file list entry
-      	ZipEntry ze = zis.getNextEntry();
-  
-      	while(ze != null) {
-   
-      	   String fileName = ze.getName();
-             File newFile = new File(folder.toString() + File.separator + fileName);
-   
-             System.out.println("file unzip : "+ newFile.getAbsoluteFile());
-   
-              //create all non exists folders
-              //else you will hit FileNotFoundException for compressed folder
-              new File(newFile.getParent()).mkdirs();
-   
-              FileOutputStream fos = new FileOutputStream(newFile);             
-   
-              int len;
-              byte []buffer = new byte[1024];
-              while ((len = zis.read(buffer)) > 0) {
-         		fos.write(buffer, 0, len);
-              }
-   
-              fos.close();   
-              ze = zis.getNextEntry();
-      	}
-   
-        zis.closeEntry();
-      	zis.close();
-   
-      	System.out.println("Unzip done");
-		
-	}
-    
-    return folder;
-}
-
-private List<DBInvocation> findInvocationDiff(List<DBInvocation> trace, DBInvocation origin) {
-	
-	List<DBInvocation> invocationList = dbUtil.getDiffInvocationBy(origin);
-	List<DBInvocation> invocationReturn = new ArrayList<DBInvocation>();
-	
-	for(DBInvocation invocation : invocationList) {
-		
-		List<DBInvocation> invocationTrace = new ArrayList<DBInvocation>();
-		CallGraph dummyGraph = new CallGraph();
-		boolean isEqual = true;
-		
-        long id = (long) invocation.getId();
-        dbUtil.createInvocationTraceDiff(invocationTrace, dummyGraph, id, true);
-        dbUtil.createInvocationTraceDiff(invocationTrace, dummyGraph, id, false);
-        sortDBInvocationList(invocationTrace);
-        
-        if(trace.size() == invocationTrace.size()) {
-        	// Trace equal
-        	for(int i = 0; i < trace.size(); i++) {
-        		if(trace.get(i).getClassName().equals(invocationTrace.get(i).getClassName()) &&
-        				trace.get(i).getMethodName().equals(invocationTrace.get(i).getMethodName()) && 
-        				trace.get(i).getUniqueMethodName().equals(invocationTrace.get(i).getUniqueMethodName())) {
-        			
-        		}
-        		else
-        		{
-        			isEqual = false;
-        		}
-        	}
-        	
-        }
-        else
-        {
-        	isEqual = false;
-        }
-        
-        
-        if(isEqual)
-        {
-        	invocationReturn.addAll(invocationTrace);
-        	invocationReturn.add(new DBInvocation(0, false, "", "", "", "", new Timestamp(0), ""));
-        }
-	}
-	
-	return invocationReturn;
-}
-
-private static void sortDBInvocationList(List<DBInvocation> list) {
-    
-	Collections.sort(list, new Comparator<DBInvocation>() {
-
-		@Override
-		public int compare(DBInvocation arg0, DBInvocation arg1) {
-			return  arg0.getTimestamp().compareTo(arg1.getTimestamp());
-		}
-    });
-}
 
   private class DBQueryExecutor implements Runnable {
     public void run() {

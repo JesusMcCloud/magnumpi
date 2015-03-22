@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright 2013 Alexander Jesner, Bernd Prﾃｼnster
- * Copyright 2013, 2014 Bernd Prﾃｼnster
+ * Copyright 2013 Alexander Jesner, Bernd Prünster
+ * Copyright 2013, 2014 Bernd Prünster
  *
  *     This file is part of Magnum PI.
  *
@@ -34,14 +34,8 @@ public interface IDBUtil extends Runnable {
   public abstract void write(MethodInvocationModel invocation);
 
   public abstract void export(String parentDir) throws IOException;
-  
-  public abstract void dbImport(String dbFile) throws IOException;
 
   public List<DBInvocation> query(String query) throws SQLException;
-  
-  public List<DBInvocation> findPasswords(String clazz, String method) throws SQLException;
-  
-  public List<DBInvocation> findPasswords(String arguments);
 
   public DBInvocation getInvocation(long id) throws SQLException;
 
@@ -49,17 +43,6 @@ public interface IDBUtil extends Runnable {
 
   public void updateInvocationReturn(MethodInvocationModel invocationModel);
 
-  public void createInvocationTrace(List<DBInvocation> invocationList, CallGraph cg, long id, boolean direction);
-  
-  public void hideTimeLineItems(String column, String arg, int mode) throws SQLException;
-
-  public abstract void dbImportDifferentDB(String dbFile);
-  
-  public abstract boolean isConnectionDiffSet();
-  
-  public abstract List<DBInvocation> getDiffInvocationBy(DBInvocation origin);
-
-void createInvocationTraceDiff(List<DBInvocation> invocationList, CallGraph cg,
-		long id, boolean direction);
+  public void createInvocationTrace(CallGraph cg, long id, boolean direction);
 
 }
