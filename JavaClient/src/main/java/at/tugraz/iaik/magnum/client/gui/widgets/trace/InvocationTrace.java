@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright 2013 Alexander Jesner, Bernd Prﾃｼnster
- * Copyright 2013, 2014 Bernd Prﾃｼnster
+ * Copyright 2013 Alexander Jesner, Bernd Prünster
+ * Copyright 2013, 2014 Bernd Prünster
  *
  *     This file is part of Magnum PI.
  *
@@ -90,7 +90,7 @@ public class InvocationTrace extends JPanel {
     @Override
     public void actionPerformed(ActionEvent e) {
       ready = false;
-      dbUtil.createInvocationTrace(null, callGraph, node.getId(), true);
+      dbUtil.createInvocationTrace(callGraph, node.getId(), true);
       draw();
     }
   }
@@ -113,7 +113,6 @@ public class InvocationTrace extends JPanel {
       decompileWrapper.decompile(node.getInvocations().first().getUniqueMethodName(), true);
     }
   }
- 
 
   private JPopupMenu createPopup(CallGraphNode node, int x, int y) {
     final JPopupMenu popup = new JPopupMenu();
@@ -152,7 +151,6 @@ public class InvocationTrace extends JPanel {
     popup.add(new JSeparator(JSeparator.HORIZONTAL));
     jtaDetail.setText(node.getInvocations().first().prettyPrint());
     // popup.add(areaItem);
-    
     popup.add(areaPanel);
     pruneListener.setNode(node);
     calcListener.setNode(node);
@@ -183,7 +181,7 @@ public class InvocationTrace extends JPanel {
                 System.out.println("Delesect");
                 callGraph.deselectAll();
                 System.out.println("CreateInvocation");
-                dbUtil.createInvocationTrace(null, callGraph, parent.getId(), false);
+                dbUtil.createInvocationTrace(callGraph, parent.getId(), false);
                 System.out.println("SELECT");
                 callGraph.selectNode(parent.getId());
                 System.out.println("DRAW");
