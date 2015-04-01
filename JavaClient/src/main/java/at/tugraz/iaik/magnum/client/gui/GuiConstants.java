@@ -23,7 +23,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 public interface GuiConstants {
-  public static final String DEFAULT_QUERY    = "ORDER BY timestamp DESC LIMIT 500";
+  public static final String DEFAULT_QUERY    = "WHERE HIDE=0 ORDER BY timestamp DESC LIMIT 500";
   public static final String PATH_RES_ICONS   = "/at/tugraz/iaik/magnum/client/res/gui/";
   public static final String NAME_ICON_MAGNUM = "magnum_pi.png";
 
