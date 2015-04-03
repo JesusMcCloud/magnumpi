@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright 2013 Alexander Jesner, Bernd Prünster
- * Copyright 2013, 2014 Bernd Prünster
+ * Copyright 2013 Alexander Jesner, Bernd PrÃ¼nster
+ * Copyright 2013, 2014 Bernd PrÃ¼nster
  *
  *     This file is part of Magnum PI.
  *
@@ -80,6 +80,14 @@ public class MoustacheClassLoader implements IMoustacheClassLoader {
     if (!isInitialized)
       blocker.acquire();
   }
+  
+  public void ApkFileImport(File apkFile) throws IOException {
+	  
+	  addLoaderFromJar(apkFile);
+	  
+      isInitialized = true;
+      blocker.release();
+  }
 
   private void initializeDependencies() throws IOException {
     File androidJar = jarResource2TmpFile("/at/tugraz/iaik/magnum/client/res/blobs/android.jar");
@@ -93,7 +101,9 @@ public class MoustacheClassLoader implements IMoustacheClassLoader {
 
   private File jarResource2TmpFile(String res) throws IOException {
     String[] fname = res.split("/");
-    File tmpFile = File.createTempFile("magnum_" + fname[fname.length - 1], "magnum");
+    File tmpFile = File.createTempFile("magnum_" + 
+    		fname[fname.length - 1].replace(".", ""), "magnum.jar");
+    
     tmpFile.deleteOnExit();
 
     FileOutputStream outputStream = new FileOutputStream(tmpFile);
