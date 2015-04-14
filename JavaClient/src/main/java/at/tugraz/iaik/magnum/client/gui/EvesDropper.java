@@ -1000,7 +1000,7 @@ public class EvesDropper {
   }
 
   private void setupJIFBWList() {
-    jifBWList = new CustomBorderedInternalFrame("Black窶�/Whitelist");
+    jifBWList = new CustomBorderedInternalFrame("Black-/Whitelist");
     try {
       jifBWList.setFrameIcon(GuiConstants.ICON_BW);
     } catch (Exception e) {
