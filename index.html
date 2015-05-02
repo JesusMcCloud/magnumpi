@@ -95,12 +95,25 @@ However, analysing password safes and file vaults is only one of many possible a
 <h2>
 <a name="analysis" class="anchor" href="#analysis"><span class="octicon octicon-link"></span></a>Analysis Findings</h2>
 <p>
-Magnum PI has been successfully used to assess the security of applications aimed at protecting sensitive data on Android. An anonymised excerpt of the analysis results reveals that popular password safes often do not sufficiently protect users's credentials. If the number of app installs shown in the Google Play Store accurately reflect the number of users of a certain password safe, the following results lead to the conclusion that as of September 2014 millions of user credentials are not sufficiently protected:
+Magnum PI has been successfully used to assess the security of applications aimed at protecting sensitive data on Android. An anonymised excerpt of the analysis results reveals that password safes and file encryption apps often do not sufficiently protect users' data. If the number of app installs shown in the Google Play Store accurately reflects the number of an app' users, the following results lead to the conclusion that both millions of user credentials, and other sensitive data are not sufficiently protected:
+</p>
+<h3>File Encryption App 1</h3>
+<p>
+<strong>Price:</strong> Free<br>
+<Strong>Installs (May '15):</Strong> 1 000 000 - 5 000 000<br>
+<p>File Encryption app 1 enables users to encrypt arbitrary files using a password-derived key.</p>
+<strong>Analysis Results:</strong> A custom KDF without salt is used, which just multiplies each password character with a hard-coded prime number &lt;60 mod 256. The encryption scheme works similarly:
+<pre>int n2 = 0;
+for (int i = 0; i < n; ++i) {
+  output[i] = (byte)((n2 += input[i] + password[i % password.length]) & 0xFF);
+  }</pre>
+This makes it possible to very easily brute-force the password by trying to decrypt a file, where the file's header is either known or an educated guess about the file's contents can be made.
+This is even further eased by the fact that, in spite of enabling full file encryption, only the beginning and the the end of a file are actually encrypted.
 </p>
 <h3>Password Safe 1</h3>
 <p>
 <strong>Price:</strong> Free (premium version available)<br>
-<Strong>Installs:</Strong> 100 000 - 500 000<br>
+<Strong>Installs (Sept '14):</Strong> 100 000 - 500 000<br>
 <p>Password Safe 1 is a purely offline app (no Internet permission) that protects various data (text documents, credentials, ...) using a master password.</p>
 <strong>Analysis Results:</strong> No KDF is used. If the password is shorter than 32 characters it is repeated until a string of 32 characters length is produced. This String is then used as 256 bit AES key.
 This scheme allows for very efficient brute-force attacks, in part also because passwords like <em>yxz</em>, <em>yxzyxz</em> are equivalent.
@@ -109,7 +122,7 @@ This scheme allows for very efficient brute-force attacks, in part also because 
 <h3>Password Safe 2</h3>
 <p>
 <strong>Price:</strong> Free<br>
-<Strong>Installs:</Strong> 100 000 - 500 000<br>
+<Strong>Installs (Sept '14):</Strong> 100 000 - 500 000<br>
 <p>Password Safe 2 is a purely offline app (no Internet permission) that protects a set of credentials using a master password.</p>
 <strong>Analysis Results:</strong> A standardised KDF is used: PBKDF2 with HMAC SHA-1, however only 20 iterations are performed, which makes brute-force attacks feasible.
 </p>
@@ -117,25 +130,25 @@ This scheme allows for very efficient brute-force attacks, in part also because 
 <h3>Password Safe 3</h3>
 <p>
 <strong>Price:</strong> Free + in-app purchases<br>
-<Strong>Installs:</Strong> 1 000 000 - 5 000 000<br>
+<Strong>Installs (Sept '14):</Strong> 1 000 000 - 5 000 000<br>
 <p>Password Safe 3 is a purely offline app (no Internet permission) that protects a set of credentials using a master password.</p>
-<strong>Analysis Results:</strong> Obfuscated Code makes analysis difficult. A custom KDF is used: The password is hashed 1000 times (without salt) using SHA-256. The resulting byte array is then used as input for a standard PBEKeySpec with a static 256 bit salt, a key length of 256 bits and 1024 iterations.<br>
+<strong>Analysis Results:</strong> Obfuscated code makes analysis difficult. A custom KDF is used: The password is hashed 1000 times (without salt) using SHA-256. The resulting byte array is then used as input for a standard PBEKeySpec with a static 256 bit salt, a key length of 256 bits and 1024 iterations.<br>
 Incomprehensible code has a high probability of being a sign of a flawed implementation, since a secure and correct implementation should be recognisable as such. Furthermore the static salt makes is possible to precompute keys.
 </p>
 
 <h3>Password Safe 4</h3>
 <p>
 <strong>Price:</strong> Free trial, then $9,99<br>
-<Strong>Installs:</Strong> 100 000 - 500 000<br>
+<Strong>Installs (Sept '14):</Strong> 100 000 - 500 000<br>
 <p>Password Safe 4 can be used offline, but also provides means of synchronising stored credentials between different devices. Stored credentials are protected by a master password.</p>
 <strong>Analysis Results:</strong> Bouncy Castle's PBKDF2 with HMAC SHA-1 with 8000 iterations is used. A randomly generated salt is also used, making this app highly secure.
 </p>
 
-<h3>File Encryption App 1</h3>
+<h3>File Encryption App 2</h3>
 <p>
 <strong>Price:</strong> Free, in-app purchases to donate<br>
-<Strong>Installs:</Strong> 10 000 - 50 000<br>
-<p>File Encryption app 1 enables users to encrypt arbitrary files using AES256 and stores them inside a so called vault which is protected by a password.</p>
+<Strong>Installs (Sept '14):</Strong> 10 000 - 50 000<br>
+<p>File Encryption app 2 enables users to encrypt arbitrary files using AES256 and stores them inside a so called vault which is protected by a password.</p>
 <strong>Analysis Results:</strong> No KDF is used. The AES key consists of the first 32 bytes of the password provided by the user (if the password is shorter, it is padded using zeros). No salt is used. Brute-force attacks, password precomputations and rainbow tables can be employed to guess the AES key.
 </p>
 
