@@ -95,20 +95,20 @@ However, analysing password safes and file vaults is only one of many possible a
 <h2>
 <a name="analysis" class="anchor" href="#analysis"><span class="octicon octicon-link"></span></a>Analysis Findings</h2>
 <p>
-Magnum PI has been successfully used to assess the security of applications aimed at protecting sensitive data on Android. An anonymised excerpt of the analysis results reveals that password safes and file encryption apps often do not sufficiently protect users' data. If the number of app installs shown in the Google Play Store accurately reflects the number of an app' users, the following results lead to the conclusion that both millions of user credentials, and other sensitive data are not sufficiently protected:
+Magnum PI has been successfully used to assess the security of applications aimed at protecting sensitive data on Android. An anonymised excerpt of the analysis results reveals that password safes and file encryption apps often do not sufficiently protect users' data. If the number of app installs shown in the Google Play Store accurately reflects the number of an app's users, the following results lead to the conclusion that both millions of user credentials, and other sensitive data are not sufficiently protected:
 </p>
 <h3>File Encryption App 1</h3>
 <p>
 <strong>Price:</strong> Free<br>
 <Strong>Installs (May '15):</Strong> 1 000 000 - 5 000 000<br>
-<p>File Encryption app 1 enables users to encrypt arbitrary files using a password-derived key.</p>
+<p>File Encryption App 1 enables users to encrypt arbitrary files using a password-derived key.</p>
 <strong>Analysis Results:</strong> A custom KDF without salt is used, which just multiplies each password character with a hard-coded prime number &lt;60 mod 256. The encryption scheme works similarly:
 <pre>int n2 = 0;
 for (int i = 0; i < n; ++i) {
   output[i] = (byte)((n2 += input[i] + password[i % password.length]) & 0xFF);
   }</pre>
 This makes it possible to very easily brute-force the password by trying to decrypt a file, where the file's header is either known or an educated guess about the file's contents can be made.
-This is even further eased by the fact that, in spite of enabling full file encryption, only the beginning and the the end of a file are actually encrypted.
+This is even further eased by the fact that, in spite of enabling full file encryption, only the beginning and the end of a file are actually encrypted.
 </p>
 <h3>Password Safe 1</h3>
 <p>
@@ -148,7 +148,7 @@ Incomprehensible code has a high probability of being a sign of a flawed impleme
 <p>
 <strong>Price:</strong> Free, in-app purchases to donate<br>
 <Strong>Installs (Sept '14):</Strong> 10 000 - 50 000<br>
-<p>File Encryption app 2 enables users to encrypt arbitrary files using AES256 and stores them inside a so called vault which is protected by a password.</p>
+<p>File Encryption App 2 enables users to encrypt arbitrary files using AES256 and stores them inside a so called vault which is protected by a password.</p>
 <strong>Analysis Results:</strong> No KDF is used. The AES key consists of the first 32 bytes of the password provided by the user (if the password is shorter, it is padded using zeros). No salt is used. Brute-force attacks, password precomputations and rainbow tables can be employed to guess the AES key.
 </p>
 
