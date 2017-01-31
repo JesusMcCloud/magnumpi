@@ -19,11 +19,10 @@
  *******************************************************************************/
 package at.tugraz.iaik.magnum.data.transport;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import android.util.Log;
+import org.json.JSONObject;
+
+import java.io.*;
 import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +36,7 @@ public class MethodEntryTransportObject extends MethodInfoTransportObject {
   private final boolean     callerKnown;
 
   MethodEntryTransportObject(final Member method, final Object[] params, final long identifier, final long prevID,
-      final boolean callerKnown) {
+                             final boolean callerKnown) {
     super(method);
     this.identifier = identifier;
     this.prevID = prevID;
@@ -54,38 +53,32 @@ public class MethodEntryTransportObject extends MethodInfoTransportObject {
   private void packForTransport(Object[] params) throws IOException {
     transportBuffer = new ArrayList<byte[]>();
 
-    for (int i = 0; i < params.length; ++i) {
+    if(params == null)
+    {
+      transportBuffer.add(new byte[0]);
+      Log.w("MAGNUM", "MethodEntryTransportObject:packForTransport params are null!");
+      return;
+    }
+
+    for (Object param : params) {
       ByteArrayOutputStream buffer = new ByteArrayOutputStream();
       ObjectOutputStream out = new ObjectOutputStream(buffer);
 
-      Object o = params[i];
-      String packedObjectClassName = "(null)";
-
-      if (o != null && !(o instanceof Serializable)) {
-        packedObjectClassName = o.getClass().getName();
-
+      if (param != null && !(param instanceof Serializable)) {
         try {
-          if (o.getClass().getMethod("toString").getDeclaringClass().equals(Object.class))
-            out.writeObject("(non-serializable: " + packedObjectClassName + ")");
-          else
-            out.writeObject(o.toString());
-        } catch (NoSuchMethodException e) {
+            out.writeObject(((JSONObject) param).toString());
 
-//        } catch (StackOverflowError e) {
-//          out.writeObject("(Exception during serialization: `" + e.getMessage() + "`);");
+        } catch (InvalidClassException e) {
+          out.writeObject("packForTransport entry InvalidClassException ");
+          e.printStackTrace();
+        } catch (NotSerializableException e) {
+          out.writeObject("packForTransport entry NotSerializableException ");
+          e.printStackTrace();
+        } catch (IOException e) {
+          out.writeObject("packForTransport entry IOException ");
+          e.printStackTrace();
         }
       }
-      //} else
-
-        try {
-          // Log.d("MAGNUM", "METO(" + getUniqueMethodName() +
-          // "): serializing `"
-          // + packedObjectClassName + "`");
-          out.writeObject(o);
-        } catch (NotSerializableException e) {
-          out.writeObject("(Exception during serialization: `" + e.getMessage() + "`);");
-        }
-
       out.close();
       transportBuffer.add(buffer.toByteArray());
     }

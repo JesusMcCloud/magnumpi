@@ -57,7 +57,7 @@ public class HookSideBridgeSupervisor implements Callable<Boolean> {
     
     while (!Thread.interrupted() && running) {
       try {
-        Log.d(Constants.TAG, "HSBS running");
+        ////Log.d(Constants.TAG, "HSBS running");
         HookSideBridgeReader reader = new HookSideBridgeReader(sock);
         HookSideBridgeWriter writer = new HookSideBridgeWriter(sock, q);
 
@@ -66,7 +66,7 @@ public class HookSideBridgeSupervisor implements Callable<Boolean> {
         rw.add(writer);
         dispatcher.invokeAny(rw);
         
-        Log.d(Constants.TAG, "HSBS Done");
+        ////Log.d(Constants.TAG, "HSBS Done");
 
         sock.close();
         int tries = 0;

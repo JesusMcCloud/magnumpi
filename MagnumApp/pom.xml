@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>at.tugraz.iaik.magnum.suite</groupId>
   <artifactId>magnum-suite</artifactId>
-  <version>0.1</version>
+  <version>0.2</version>
   <packaging>apk</packaging>
   <name>magnum-suite</name>
  <properties>
@@ -22,21 +22,33 @@
   </repositories>
   <dependencies>
     <dependency>
-      <groupId>de.robv.android</groupId>
-      <artifactId>xposed</artifactId>
-      <version>2.1</version>
+      <groupId>de.robv.android.xposed</groupId>
+      <artifactId>api</artifactId>
+      <version>87</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.jf</groupId>
-      <artifactId>dexlib2</artifactId>
-      <version>2.0</version>
-      <scope>provided</scope>
-    </dependency>
+      <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+      <dependency>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+          <version>20.0</version>
+      </dependency>
+      <!-- https://mvnrepository.com/artifact/org.smali/dexlib2 -->
+      <dependency>
+          <groupId>org.smali</groupId>
+          <artifactId>dexlib2</artifactId>
+          <version>2.1.3</version>
+      </dependency>
+      <!-- https://mvnrepository.com/artifact/org.smali/util -->
+      <dependency>
+          <groupId>org.smali</groupId>
+          <artifactId>util</artifactId>
+          <version>2.1.3</version>
+      </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>4.12</version>
     </dependency>
    <dependency>
       <groupId>com.google.android</groupId>
@@ -44,6 +56,28 @@
       <version>${platform.version}</version>
       <scope>provided</scope>
     </dependency>
+      <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-compress</artifactId>
+          <version>RELEASE</version>
+      </dependency>
+      <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+      <dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-core</artifactId>
+          <version>2.8.6</version>
+      </dependency>
+      <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+      <dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+          <version>2.8.6</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-compress</artifactId>
+          <version>RELEASE</version>
+      </dependency>
   </dependencies>
   <build>
   <sourceDirectory>src</sourceDirectory>

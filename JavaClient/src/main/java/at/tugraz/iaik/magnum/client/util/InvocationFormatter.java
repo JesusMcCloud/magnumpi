@@ -29,15 +29,17 @@ public abstract class InvocationFormatter {
     StringBuilder bld = new StringBuilder();
     int i = 0;
     for (InstanceModel o : invocation.getArguments()) {
-      bld.append("\n");
-      bld.append(FormattedInstanceNodeFactory.toString(o.getData()));
+      bld.append(o.getData());
       if (++i != invocation.getArguments().size())
-        bld.append("\n, ");
+        bld.append(" , ");
     }
     return bld.toString();
   }
 
   public static String formatReturn(MethodInvocationModel invocation) {
-    return FormattedInstanceNodeFactory.toString(invocation.getReturnValue().getData());
+    if(invocation != null && invocation.getReturnValue() != null && invocation.getReturnValue().getData() != null )
+      return invocation.getReturnValue().getData().toString();
+    else
+      return "";
   }
 }

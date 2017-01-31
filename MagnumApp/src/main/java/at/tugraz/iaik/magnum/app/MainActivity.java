@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import at.tugraz.iaik.magnum.suite.R;
@@ -39,8 +40,8 @@ public class MainActivity extends Activity {
     StrictMode.enableDefaults();
     this.requestWindowFeature(Window.FEATURE_NO_TITLE);
     // Remove notification bar
-    this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
+        WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
     setContentView(R.layout.activity_main);
     Intent i = new Intent(getApplicationContext(), MagnumService.class);
     getApplicationContext().startService(i);
@@ -60,6 +61,7 @@ public class MainActivity extends Activity {
         runOnUiThread(new Runnable() {
           public void run() {
             finish();
+
           }
         });
       }

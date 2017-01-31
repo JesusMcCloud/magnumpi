@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright 2013 Alexander Jesner, Bernd Prﾃｼnster
- * Copyright 2013, 2014 Bernd Prﾃｼnster
+ * Copyright 2013 Alexander Jesner, Bernd Prünster
+ * Copyright 2013, 2014 Bernd Prünster
  *
  *     This file is part of Magnum PI.
  *
@@ -27,83 +27,33 @@ import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.net.ConnectException;
-import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import at.tugraz.iaik.magnum.client.gui.utils.*;
 import javafx.util.Pair;
 
 import javax.imageio.ImageIO;
-import javax.swing.ButtonGroup;
-import javax.swing.DefaultListModel;
-import javax.swing.GroupLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDesktopPane;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JToolBar;
-import javax.swing.JTree;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
+import javax.swing.event.*;
+import javax.swing.table.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.bind.JAXBException;
 
@@ -111,15 +61,10 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 
 import at.tugraz.iaik.magnum.client.cg.CallGraph;
-import at.tugraz.iaik.magnum.client.cg.CallGraphNode;
 import at.tugraz.iaik.magnum.client.conf.ConfFile;
 import at.tugraz.iaik.magnum.client.conf.RuntimeConfig;
 import at.tugraz.iaik.magnum.client.db.IDBUtil;
-import at.tugraz.iaik.magnum.client.gui.utils.LogMessageTableModel;
 import at.tugraz.iaik.magnum.client.gui.utils.LogMessageTableModel.TYPE;
-import at.tugraz.iaik.magnum.client.gui.utils.PackageConfigTableModel;
-import at.tugraz.iaik.magnum.client.gui.utils.TimelineTableModel;
-import at.tugraz.iaik.magnum.client.gui.utils.WindowStateManager;
 import at.tugraz.iaik.magnum.client.gui.widgets.CustomBorderedInternalFrame;
 import at.tugraz.iaik.magnum.client.gui.widgets.HistoryTextField;
 import at.tugraz.iaik.magnum.client.gui.widgets.LibSexyTextField;
@@ -159,14 +104,18 @@ import at.tugraz.iaik.magnum.util.JavaNameHelper;
 
 import com.google.inject.Inject;
 import com.google.inject.Module;
-import com.strobel.assembler.Collection;
+import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.decorator.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class EvesDropper {
 
   private MainFrame                    frmEvesDropper;
   private LibSexyTextField             jfFilterNodes, jtfFilterLog, jtfFilterPkgs;
   private HistoryTextField             jtfFilterTimeline;
-  private JTable                       jtbLog, jtbHooks, jtbTimeline;
+  private JTable                       jtbLog, jtbHooks;
+  private JXTable                      jtbTimeline;
   private JLabel                       jlbState;
   private JTextField                   jtfIP;
   private JButton                      jbuConnect;
@@ -174,8 +123,8 @@ public class EvesDropper {
   private JToolBar                     jtbStatus;
   private JLabel                       jlbStatus;
   private LogMessageTableModel         logTableModel;
-  private TimelineTableModel           timelineTableModel, passwordTableModel, 
-  									   functionInvocation, differentFunctionInvocation;
+  private TimelineTableModel           timelineTableModel, passwordTableModel,
+  									   functionInvocationTableModel, differentFunctionInvocationTableModel;
   private ClassTreeModel               classTreeModel;
   private InvocationTreeModel          invocationTreeModel;
   private CallGraph                    callGraph;
@@ -197,7 +146,7 @@ public class EvesDropper {
   private JRadioButton                 jrbRegularMode;
   private JTextArea                    jtaBlackWhiteList;
   private RSyntaxTextArea              tfSourceCode;
-  private JTextArea                    jtaInvocationDetail;
+  private JTextPane                    jtaInvocationDetail;
   private JScrollPane                  jspHooks;
   private JScrollPane                  jspTimeline;
   private JList				   		   jLstPasswords;
@@ -224,9 +173,16 @@ public class EvesDropper {
 
   private boolean                      globalWBList;
   private DefaultListModel<String>	   passwordList;
-  
+
   private List<DBInvocation> 		   invocationList;
   private DBInvocation 				   origin;
+
+  private int                          fontSize;
+
+  private JTextField                   jtfSearchTimeline;
+  private JLabel                       jlNumberOfHits;
+
+  private boolean                      resetTimelineTable;
 
   public static void main(String[] args) {
     EventQueue.invokeLater(new Runnable() {
@@ -243,7 +199,7 @@ public class EvesDropper {
     });
   }
 
-  public void setupWindow() {
+  private void setupWindow() {
     frmEvesDropper.setVisible(true);
     loadWindowStates();
   }
@@ -263,6 +219,8 @@ public class EvesDropper {
     this.moustacheDecompiler = moustacheDecompiler;
     this.dbUtil = dbUtil;
     this.decompileWrapper = new DecompileWrapper();
+    this.fontSize = 14;
+    this.resetTimelineTable = false;
 
     networkCommunication.addChangeListener(new ChangeListener() {
 
@@ -293,7 +251,6 @@ public class EvesDropper {
     jspCg.setViewportView(jungGraph);
     jspCg.setAutoscrolls(true);
     jifCallGraph.add(jspCg, BorderLayout.CENTER);
-
   }
 
   /**
@@ -303,13 +260,25 @@ public class EvesDropper {
 
     System.out.println("Eve's Dropper running");
     try {
-      for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+
+      for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
         if ("Nimbus".equals(info.getName())) {
           UIManager.setLookAndFeel(info.getClassName());
           break;
         }
       }
-    } catch (Exception e) {
+
+
+      Font font = new Font("Arial", Font.PLAIN, this.fontSize);
+      Enumeration keys = UIManager.getDefaults().keys();
+      while (keys.hasMoreElements() ) {
+        Object key = keys.nextElement();
+        Object value = UIManager.get( key );
+        if ( value instanceof Font ) {
+          UIManager.put( key, font );
+        }
+      }
+    } catch (Exception ignored) {
     }
 
     jlbState = new JLabel(" \u2022 ");
@@ -346,7 +315,7 @@ public class EvesDropper {
     frmEvesDropper.getContentPane().add(jtbStatus, BorderLayout.SOUTH);
 
     jlbStatus = new JLabel("Not Connected");
-    jlbStatus.setIcon(GuiConstants.ICON_DISCONECTED);
+    jlbStatus.setIcon(GuiConstants.ICON_DISCONNECTED);
 
     jtbStatus.add(jlbStatus);
     jtbStatus.add(new JSeparator(JSeparator.VERTICAL));
@@ -383,11 +352,7 @@ public class EvesDropper {
 
         try {
           onConnect(addr);
-        } catch (NumberFormatException e1) {
-          setConnectionState(false, e1.getMessage());
-        } catch (UnknownHostException e1) {
-          setConnectionState(false, e1.getMessage());
-        } catch (IOException e1) {
+        } catch (NumberFormatException | IOException e1) {
           setConnectionState(false, e1.getMessage());
         }
       }
@@ -459,22 +424,22 @@ public class EvesDropper {
             FileWriter w = new FileWriter(bw);
             w.write(jtaBlackWhiteList.getText());
             w.close();
-          } catch (Exception e) {
+          } catch (Exception ignored) {
 
           }
-        
+
         //export Apk file
         Set<JarFile> jarFiles = moustacheClassLoader.getJarFiles();
-        
+
         for ( JarFile jar: jarFiles)
         {
         	File file = new File(jar.getName());
         	File tmpApk = new File(tmpExport.getAbsolutePath() + File.separator + file.getName());
         	Files.copy(file.toPath(), tmpApk.toPath());
         }
-        
 
-        
+
+
         File[] files = tmpExport.listFiles();
         ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(destFile));
         FileInputStream tmpIn;
@@ -508,7 +473,7 @@ public class EvesDropper {
 
     try {
       jifLog.setFrameIcon(GuiConstants.ICON_LOG);
-    } catch (Exception e) {
+    } catch (Exception ignored) {
     }
     jifLog.getContentPane().setLayout(new BorderLayout());
     jifLog.setResizable(true);
@@ -546,7 +511,8 @@ public class EvesDropper {
     jtbLog.getColumnModel().getColumn(1).setPreferredWidth(200);
     jtbLog.getColumnModel().getColumn(2).setPreferredWidth(800);
     jtbLog.getColumnModel().getColumn(0).setMinWidth(20);
-    jtbLog.getColumnModel().getColumn(0).setMaxWidth(20);
+    jtbLog.getColumnModel().getColumn(0).setMaxWidth(20);//
+    jtbLog.setRowHeight(this.fontSize);
     jtbLog.addMouseListener(new MouseAdapter() {
       public void mouseClicked(MouseEvent e) {
         int sel = jtbLog.getSelectedRow();
@@ -593,7 +559,7 @@ public class EvesDropper {
     jifClasses = new CustomBorderedInternalFrame("Classes");
     try {
       jifClasses.setFrameIcon(GuiConstants.ICON_CLASSES);
-    } catch (Exception e) {
+    } catch (Exception ignored) {
     }
     jifClasses.getContentPane().setLayout(new BorderLayout());
     jifClasses.setMaximizable(true);
@@ -671,7 +637,7 @@ public class EvesDropper {
 
     try {
       jifCallGraph.setFrameIcon(GuiConstants.ICON_CG);
-    } catch (Exception e) {
+    } catch (Exception ignored) {
     }
 
     jifCallGraph.getContentPane().setLayout(new BorderLayout());
@@ -691,7 +657,7 @@ public class EvesDropper {
     jifSourceCode = new CustomBorderedInternalFrame("Source Code");
     try {
       jifSourceCode.setFrameIcon(GuiConstants.ICON_SRC);
-    } catch (Exception e) {
+    } catch (Exception ignored) {
     }
     jifSourceCode.getContentPane().setLayout(new BorderLayout());
     jifSourceCode.setResizable(true);
@@ -722,7 +688,6 @@ public class EvesDropper {
           try {
             dbUtil.updateInvocationInteresting(invocation.getId(), invocation.isInteresting());
           } catch (Exception e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
           }
         }
@@ -733,7 +698,7 @@ public class EvesDropper {
     jifTimeline.setClosable(false);
     try {
       jifTimeline.setFrameIcon(GuiConstants.ICON_LOG);
-    } catch (Exception e) {
+    } catch (Exception ignored) {
     }
 
     jifTimeline.getContentPane().setLayout(new BorderLayout());
@@ -744,16 +709,25 @@ public class EvesDropper {
     jifTimeline.setBounds(50, 300, 400, 300);
     desktopPane.add(jifTimeline);
 
-    jtbTimeline = new JTable();
+    jtbTimeline = new JXTable();
     jspTimeline = new JScrollPane(jtbTimeline);
     jspTimeline.setViewportView(jtbTimeline);
-    jtbTimeline.setFillsViewportHeight(true);
+ //   jtbTimeline.setFillsViewportHeight(true);
     jtbTimeline.setModel(timelineTableModel);
+ //   jtbTimeline.setRowHeight(this.fontSize);
+    jtbTimeline.setColumnControlVisible(true);
+    jtbTimeline.setSortsOnUpdates(true);
+    jtbTimeline.getTableHeader().setReorderingAllowed(false);
 
-    jtaInvocationDetail = new JTextArea();
+    Highlighter highlighter = HighlighterFactory.createSimpleStriping();
+    PatternPredicate patternPredicate = new PatternPredicate("true", 0);
+    ColorHighlighter colorHighlighter = new ColorHighlighter(patternPredicate, Color.ORANGE, null, Color.ORANGE, null);
+    jtbTimeline.setHighlighters(highlighter, colorHighlighter);
+
+    jtaInvocationDetail = new JTextPane();
     jtaInvocationDetail.setEditable(false);
+    jtaInvocationDetail.setContentType("text/html");
     jtaInvocationDetail.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
-    jtaInvocationDetail.setLineWrap(false);
     JScrollPane jspInvocationDetail = new JScrollPane(jtaInvocationDetail);
     jspInvocationDetail.setViewportView(jtaInvocationDetail);
 
@@ -765,38 +739,62 @@ public class EvesDropper {
     jtbTimeline.getColumnModel().getColumn(2).setPreferredWidth(150);
     jtbTimeline.getColumnModel().getColumn(3).setPreferredWidth(200);
     jtbTimeline.getColumnModel().getColumn(4).setPreferredWidth(200);
-    jtbTimeline.getColumnModel().getColumn(0).setMinWidth(20);
-    jtbTimeline.getColumnModel().getColumn(0).setMaxWidth(20);
+    jtbTimeline.getColumnModel().getColumn(0).setMinWidth(100); //20
+    jtbTimeline.getColumnModel().getColumn(0).setMaxWidth(100); //20
 
     jtbTimeline.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
       public void valueChanged(ListSelectionEvent e) {
         int sel = jtbTimeline.getSelectedRow();
         jtaInvocationDetail.setText("");
-        StringBuilder bld = new StringBuilder("Class:   ").append((String) jtbTimeline.getValueAt(sel, 1)).append("\n");
-        bld.append("Method:  ").append((String) jtbTimeline.getValueAt(sel, 2)).append("\n");
-        bld.append("Args:    ").append((String) jtbTimeline.getValueAt(sel, 3)).append("\n\n");
-        bld.append("Returns: ").append((String) jtbTimeline.getValueAt(sel, 4)).append("\n\n");
-        bld.append("Time:    ").append((String) jtbTimeline.getValueAt(sel, 5)).append("\n\n");
-        jtaInvocationDetail.setText(bld.toString());
+        int firstIndex = e.getFirstIndex();
+        if(firstIndex >= 0 && firstIndex < timelineTableModel.getRowCount() && sel != -1)
+        {
 
-        synchronized (callGraph) {
-          callGraph.clear();
-          long id = (long) timelineTableModel.getInvocationAt(sel).getId();
-          dbUtil.createInvocationTrace(null, callGraph, id, true);
-          dbUtil.createInvocationTrace(null, callGraph, id, false);
-          callGraph.selectNode(id);
-          jungGraph.draw();
+          String args;
+          String ret;
+          try {
+            args = JSON2HTML.convert(jtbTimeline.getValueAt(sel, 3).toString().replaceAll("<|>", ""));
+            ret = JSON2HTML.convert(jtbTimeline.getValueAt(sel, 4).toString().replaceAll("<|>", ""));
+          } catch (JSONException e1) {
+            //error in the source string
+            args = "";
+            ret = "";
+          }
+
+          StringBuilder bld = new StringBuilder("<html>Class:   ").append((String) jtbTimeline.getValueAt(sel, 1)).append("\n<br>");
+          bld.append("Method:  ").append(jtbTimeline.getValueAt(sel, 2).toString().replaceAll("<|>", "")).append("\n<br>");
+          bld.append("Args:    ").append(args).append("\n\n<br><br>");
+          bld.append("Returns: ").append(ret).append("\n\n<br><br>");
+          bld.append("Time:    ").append(jtbTimeline.getValueAt(sel, 5).toString().replaceAll("<|>", "")).append("\n\n<br><br></html>");
+          String searchText = jtfSearchTimeline.getText();
+          String invocationDetailText = bld.toString();
+          if(searchText.length() != 0 && invocationDetailText.contains(searchText))
+          {
+          //  invocationDetailText = invocationDetailText.replaceAll("(?i)" + searchText.toLowerCase(), "<span style=\"background-color: #F7FE2E;\"><b>" + searchText + "</b></span>");
+            invocationDetailText = Pattern.compile(searchText, Pattern.CASE_INSENSITIVE).matcher(invocationDetailText).replaceAll("<span style=\"background-color: #F7FE2E;\"><b>" + searchText + "</b></span>");
+          }
+          jtaInvocationDetail.setText(invocationDetailText);
+
+          synchronized (callGraph) {
+            callGraph.clear();
+            long id = timelineTableModel.getInvocationAt(jtbTimeline.convertRowIndexToModel(sel)).getId();
+            dbUtil.createInvocationTrace(null, callGraph, id, true);
+            dbUtil.createInvocationTrace(null, callGraph, id, false);
+            callGraph.selectNode(id);
+            jungGraph.draw();
+          }
         }
+
       }
     });
-    
+
     jtbTimeline.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseReleased(MouseEvent e) {
-        	
+
         	final int column = jtbTimeline.columnAtPoint(e.getPoint());
             int r = jtbTimeline.rowAtPoint(e.getPoint());
-            
+
             if (r >= 0 && r < jtbTimeline.getRowCount()) {
             	jtbTimeline.setRowSelectionInterval(r, r);
             } else {
@@ -806,66 +804,57 @@ public class EvesDropper {
             int rowindex = jtbTimeline.getSelectedRow();
             if (rowindex < 0 && column < jtbTimeline.getColumnCount())
                 return;
-            if (e.isPopupTrigger() && e.getComponent() instanceof JTable ) {
+            if (e.isPopupTrigger() && e.getComponent() instanceof JTable && column != 0 ) {
                 JPopupMenu popupmenu = new JPopupMenu();
                 final String content = (String)( (TimelineTableModel)jtbTimeline.getModel()).getValueAt(rowindex, column);
-                
+              //jtbTimeline.setFont(new Font("Serif", Font.BOLD, 20));
+
                 JMenuItem hideItem = new JMenuItem("Hide all: " + content);
                 hideItem.addActionListener(new ActionListener() {
             		@Override
             		public void actionPerformed(ActionEvent e) {
-            			try {
-							dbUtil.hideTimeLineItems(jtbTimeline.getColumnName(column), content, 1);
-						} catch (SQLException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
+                      timelineTableModel.addToBlacklist(content);
+                      TableRowSorter<TimelineTableModel> trs = new TableRowSorter<>(timelineTableModel);
+                      jtbTimeline.setRowSorter(trs);
             		}
             		});
-                
+
                 JMenuItem selectItem = new JMenuItem("Select Only: " + content);
                 selectItem.addActionListener(new ActionListener() {
             		@Override
             		public void actionPerformed(ActionEvent e) {
-            			try {
-							dbUtil.hideTimeLineItems(jtbTimeline.getColumnName(column), content, 0);
-						} catch (SQLException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
+                      timelineTableModel.setSelectOnly(content);
+                      TableRowSorter<TimelineTableModel> trs = new TableRowSorter<>(timelineTableModel);
+                      jtbTimeline.setRowSorter(trs);
             		}
             		});
-                
+
                 JMenuItem restoreItem = new JMenuItem("Restore");
                 restoreItem.addActionListener(new ActionListener() {
             		@Override
             		public void actionPerformed(ActionEvent e) {
-            			
-            			try {
-							dbUtil.hideTimeLineItems(jtbTimeline.getColumnName(column), content, 2);
-						} catch (SQLException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
+            		  timelineTableModel.restore();
+                      TableRowSorter<TimelineTableModel> trs = new TableRowSorter<>(timelineTableModel);
+                      jtbTimeline.setRowSorter(trs);
             		}
             		});
-                
+
                 popupmenu.add(hideItem);
                 popupmenu.add(selectItem);
                 popupmenu.addSeparator();
                 popupmenu.add(restoreItem);
                 popupmenu.addSeparator();
-                
+
             	if(column == 3) {
             		List<String> paramList = JavaNameHelper.getParameters(content);
-            		
+
             		if(paramList.size() > 0)
             		{
             			JMenuItem jmenuDes = new JMenuItem("Add to Password");
             			jmenuDes.setEnabled(false);
             			popupmenu.add(jmenuDes);
         				popupmenu.addSeparator();
-            			
+
             			for(final String item : paramList) {
             				JMenuItem jmenuItem = new JMenuItem(item);
             				jmenuItem.addActionListener(new ActionListener() {
@@ -875,15 +864,15 @@ public class EvesDropper {
         	            				  passwordList.addElement(item);
         	            			 }
         	            		});
-            				
+
             				popupmenu.add(jmenuItem);
             			}
             		}
-            		
+
             	} else if(column == 4) {
-            		
+
             		List<String> paramList = JavaNameHelper.getParameters(content);
-            		
+
             		if(paramList.size() > 0)
             		{
             			JMenuItem jmenuDes = new JMenuItem("Add to Password");
@@ -901,10 +890,6 @@ public class EvesDropper {
         				popupmenu.add(jmenuItem);
             		}
             	}
-                
-                
-                
-                
                 popupmenu.show(e.getComponent(), e.getX(), e.getY());
             }
         }
@@ -917,7 +902,10 @@ public class EvesDropper {
       @Override
       public void keyReleased(KeyEvent e) {
         if (e.getExtendedKeyCode() == KeyEvent.VK_ENTER)
+        {
           jtfFilterTimeline.invoke();
+          resetTimelineTable = true;
+        }
       }
     });
     jtfFilterTimeline.addClearListener(new ActionListener() {
@@ -926,6 +914,7 @@ public class EvesDropper {
       public void actionPerformed(ActionEvent e) {
         jtfFilterTimeline.setText(GuiConstants.DEFAULT_QUERY);
         jtfFilterTimeline.invoke();
+        resetTimelineTable = true;
       }
     });
 
@@ -936,10 +925,44 @@ public class EvesDropper {
     jpSQL.add(jtfSQLSelect, BorderLayout.WEST);
     jpSQL.add(jtfFilterTimeline, BorderLayout.CENTER);
 
-    jifTimeline.add(jpSQL, BorderLayout.NORTH);
-    jifTimeline.add(jspTimelineInvocation, BorderLayout.CENTER);
+    jtfSearchTimeline = new JTextField();
 
+    jtfSearchTimeline.addKeyListener(new KeyListener() {
+      @Override
+      public void keyTyped(KeyEvent e) {
+      }
+
+      @Override
+      public void keyPressed(KeyEvent e) {
+      }
+
+      @Override
+      public void keyReleased(KeyEvent e) {
+        String query = jtfSearchTimeline.getText();
+        filter(query);
+      }
+    });
+
+    JPanel jpSearch = new JPanel(new BorderLayout());
+    final JLabel jlSearchTimeline = new JLabel("Search string: ");
+    jlNumberOfHits = new JLabel("");
+    jpSearch.add(jlSearchTimeline, BorderLayout.WEST);
+    jpSearch.add(jtfSearchTimeline, BorderLayout.CENTER);
+    jpSearch.add(jlNumberOfHits, BorderLayout.EAST);
+
+    jifTimeline.add(jpSQL, BorderLayout.NORTH);
+    jifTimeline.add(jpSearch, BorderLayout.SOUTH);
+    jifTimeline.add(jspTimelineInvocation, BorderLayout.CENTER);
     jifTimeline.setVisible(true);
+  }
+
+  private void filter(String query)
+  {
+    TableRowSorter<TimelineTableModel> trs = new TableRowSorter<>(timelineTableModel);
+    jtbTimeline.setRowSorter(trs);
+
+    trs.setRowFilter(RowFilter.regexFilter("(?i)" + query));
+    jlNumberOfHits.setText(String.valueOf(trs.getViewRowCount()) + " elements");
   }
 
   private void setupJIFHooker() {
@@ -960,7 +983,7 @@ public class EvesDropper {
 
     try {
       jifHooker.setFrameIcon(GuiConstants.ICON_HOOKS);
-    } catch (Exception e) {
+    } catch (Exception ignored) {
     }
     jifHooker.setResizable(true);
     jifHooker.setIconifiable(true);
@@ -973,11 +996,14 @@ public class EvesDropper {
     jspHooks.setViewportView(jtbHooks);
     jtbHooks.setFillsViewportHeight(true);
     jtbHooks.setModel(hookTableModel);
+//    jtbHooks.setRowHeight(40);
     jtbHooks.getColumnModel().getColumn(0).setPreferredWidth(20);
     jtbHooks.getColumnModel().getColumn(1).setPreferredWidth(200);
     jtbHooks.getColumnModel().getColumn(2).setPreferredWidth(800);
     jtbHooks.getColumnModel().getColumn(0).setMinWidth(20);
     jtbHooks.getColumnModel().getColumn(0).setMaxWidth(20);
+
+    jtbHooks.setRowHeight(this.fontSize);
 
     jifHooker.getContentPane().add(jspHooks, BorderLayout.CENTER);
 
@@ -1003,7 +1029,7 @@ public class EvesDropper {
     jifBWList = new CustomBorderedInternalFrame("Black-/Whitelist");
     try {
       jifBWList.setFrameIcon(GuiConstants.ICON_BW);
-    } catch (Exception e) {
+    } catch (Exception ignored) {
     }
     jifBWList.setLayout(new BorderLayout());
     jifBWList.setResizable(true);
@@ -1058,14 +1084,14 @@ public class EvesDropper {
     jifBWList.add(jspBWList, BorderLayout.CENTER);
     desktopPane.add(jifBWList);
     jifBWList.setVisible(true);
-    
+
   }
-  
+
   private void setupJIFImport() {
 	  jifImport = new CustomBorderedInternalFrame("Import");
 	  try {
 		  jifImport.setFrameIcon(GuiConstants.ICON_BW);
-	  } catch (Exception e) {
+	  } catch (Exception ignored) {
 	  }
 	  jifImport.setLayout(new BorderLayout());
 	  jifImport.setResizable(true);
@@ -1073,17 +1099,17 @@ public class EvesDropper {
 	  jifImport.setIconifiable(true);
 	  jifImport.setClosable(false);
 	  jifImport.setBounds(50, 300, 400, 300);
-	  
-	  passwordList = new DefaultListModel<String>();
+
+	  passwordList = new DefaultListModel<>();
 	  passwordTableModel = new TimelineTableModel();
-	  functionInvocation = new TimelineTableModel();
-	  differentFunctionInvocation = new TimelineTableModel();
-	  
-	  invocationList = new ArrayList<DBInvocation>();
+	  functionInvocationTableModel = new TimelineTableModel();
+	  differentFunctionInvocationTableModel = new TimelineTableModel();
+
+	  invocationList = new ArrayList<>();
 	  origin = null;
-	  
+
 	  JButton jbuImport = new JButton("Import");
-	  
+
 	  jbuImport.addActionListener(new ActionListener() {
 	      @Override
 	      public void actionPerformed(ActionEvent e) {
@@ -1091,26 +1117,24 @@ public class EvesDropper {
 	    	  try {
 	    		  Path folder = importUnzip();
 	    		  if(folder == null) return;
-	    		  
+
 	            	// Import Apk files
 	            	System.out.println("Import apk files");
 	            	File outputDir = new File(folder.toString());
-	            	
-	            	File []jarFiles = 
-	            			outputDir.listFiles(new FilenameFilter() { 
+
+	            	File []jarFiles =
+	            			outputDir.listFiles(new FilenameFilter() {
 	            				public boolean accept(File outputDir, String filename)
 	            				{ return filename.endsWith(".jar"); }
 	            			} );
-	            	
-	            	if(jarFiles.length > 0)
+
+	            	if(jarFiles != null && jarFiles.length > 0)
 	            		moustacheClassLoader.ApkFileImport(jarFiles[0]);
-	            	
+
 	            	System.out.println("Import apk done");
-	            	
-	            	
 	            	System.out.println("Import database");
 	            	File dbFile = new File(folder.toString() + File.separator + "magnum.sqlite");
-	            	
+
 	            	if(!dbFile.exists())
 	            	{
 	            		System.out.println("Databasefile doesn't exist");
@@ -1118,35 +1142,32 @@ public class EvesDropper {
 	            	}
 	            	dbUtil.dbImport(dbFile.getAbsolutePath());
 	            	System.out.println("Import Done");
-	            	
+
 	            	findPasswords();
-	            	
-	            	
-	            
 	            } catch (IOException e1) {
 	              // TODO Auto-generated catch block
 	              e1.printStackTrace();
 	            }
 	          }
 	  });
-	  
-	  
+
+
 	  JButton jbuFindPasswords = new JButton("Find Passwords");
-	  
+
 	  jbuFindPasswords.addActionListener(new ActionListener() {
 	      @Override
 	      public void actionPerformed(ActionEvent e) {
 	    	  findPasswords();
 	      }
 	  });
-	  
-	  jLstPasswords = new JList<String>(passwordList);
+
+	  jLstPasswords = new JList<>(passwordList);
 	  jspPasswords = new JScrollPane(jLstPasswords);
 	  jLstPasswords.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 	  //jLstPasswords.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 	  jLstPasswords.setVisible(true);
 	  jLstPasswords.setVisibleRowCount(20);
-	  
+
 	  jLstPasswords.getSelectionModel().addListSelectionListener(
 			  new ListSelectionListener() {
 				  public void valueChanged(ListSelectionEvent e) {
@@ -1155,14 +1176,14 @@ public class EvesDropper {
 					  doRepaint(jspPasswordTimeline);
 				  }
 			  });
-	   
-	  
+
 	  jtbPasswordTimeline = new JTable();
 	  jspPasswordTimeline = new JScrollPane(jtbPasswordTimeline);
 	  jspPasswordTimeline.setViewportView(jtbPasswordTimeline);
 	  jtbPasswordTimeline.setFillsViewportHeight(true);
 	  jtbPasswordTimeline.setModel(passwordTableModel);
-	  
+	  jtbPasswordTimeline.setRowHeight(this.fontSize);
+
 	  jtbPasswordTimeline.getColumnModel().getColumn(0).setPreferredWidth(20);
 	  jtbPasswordTimeline.getColumnModel().getColumn(1).setPreferredWidth(150);
 	  jtbPasswordTimeline.getColumnModel().getColumn(2).setPreferredWidth(130);
@@ -1171,45 +1192,45 @@ public class EvesDropper {
 	  jtbPasswordTimeline.getColumnModel().getColumn(0).setMinWidth(20);
 	  jtbPasswordTimeline.getColumnModel().getColumn(0).setMaxWidth(20);
 	  jtbPasswordTimeline.setVisible(true);
-	  
+
 	  jtbPasswordTimeline.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 	      public void valueChanged(ListSelectionEvent e) {
 	        int sel = jtbPasswordTimeline.getSelectedRow();
-	        
+
 	        invocationList.clear();
 
 	        synchronized (callGraph) {
 	          callGraph.clear();
-	          origin = passwordTableModel.getInvocationAt(sel);
-	          long id = (long) origin.getId();
+	   //       origin = passwordTableModel.getInvocationAt(sel);
+	          long id = origin.getId();
 	          dbUtil.createInvocationTrace(invocationList, callGraph, id, true);
 	          dbUtil.createInvocationTrace(invocationList, callGraph, id, false);
 	          callGraph.selectNode(id);
 	          jungGraph.draw();
-	          
+
 	          sortDBInvocationList(invocationList);
-	          functionInvocation.setContent(invocationList);
+              functionInvocationTableModel.setContent(invocationList);
 	          doRepaint(jspFunctionInvocation);
 	        }
-	        
+
           if(dbUtil.isConnectionDiffSet())
           {
         	  List<DBInvocation> diffList = findInvocationDiff(invocationList, origin);
-        	  differentFunctionInvocation.setContent(diffList);
+        	  differentFunctionInvocationTableModel.setContent(diffList);
         	  doRepaint(jspDifferentFunctionInvocation);
           }
 
-	        
+
 	      }
 	    });
-	  
+
 	  jtbPasswordTimeline.addMouseListener(new MouseAdapter() {
 	        @Override
 	        public void mouseReleased(MouseEvent e) {
-	        	
+
 	        	final int column = jtbPasswordTimeline.columnAtPoint(e.getPoint());
 	            int r = jtbPasswordTimeline.rowAtPoint(e.getPoint());
-	            
+
 	            if (r >= 0 && r < jtbTimeline.getRowCount()) {
 	            	jtbPasswordTimeline.setRowSelectionInterval(r, r);
 	            } else {
@@ -1220,12 +1241,12 @@ public class EvesDropper {
 	            if (rowindex < 0 && column < jtbPasswordTimeline.getColumnCount())
 	                return;
 	            if (e.isPopupTrigger() && e.getComponent() instanceof JTable ) {
-	            	
-	            	final String content = (String)( (TimelineTableModel)jtbPasswordTimeline.getModel()).getValueAt(rowindex, column);
-	            	
+
+	            	final String content = (String)(jtbPasswordTimeline.getModel()).getValueAt(rowindex, column);
+
 	            	if(column == 3) {
 	            		List<String> paramList = JavaNameHelper.getParameters(content);
-	            		
+
 	            		if(paramList.size() > 0)
 	            		{
 	            			JPopupMenu popupmenu = new JPopupMenu();
@@ -1233,7 +1254,7 @@ public class EvesDropper {
 	            			jmenuDes.setEnabled(false);
 	            			popupmenu.add(jmenuDes);
             				popupmenu.addSeparator();
-	            			
+
 	            			for(final String item : paramList) {
 	            				JMenuItem jmenuItem = new JMenuItem(item);
 	            				jmenuItem.addActionListener(new ActionListener() {
@@ -1243,16 +1264,12 @@ public class EvesDropper {
 	        	            				  passwordList.addElement(item);
 	        	            			 }
 	        	            		});
-	            				
 	            				popupmenu.add(jmenuItem);
 	            			}
 	            			popupmenu.show(e.getComponent(), e.getX(), e.getY());
 	            		}
-	            		
 	            	} else if(column == 4) {
-	            		
 	            		List<String> paramList = JavaNameHelper.getParameters(content);
-	            		
 	            		if(paramList.size() > 0)
 	            		{
 	            			JPopupMenu popupmenu = new JPopupMenu("Add to Password");
@@ -1271,12 +1288,12 @@ public class EvesDropper {
             				popupmenu.add(jmenuItem);
             				popupmenu.show(e.getComponent(), e.getX(), e.getY());
 	            		}
-	            	} 
-	
+	            	}
+
 	            }
 	        }
 	  });
-	  
+
 	  JButton jbuImport2 = new JButton("Import 2nd DB");
 	  jbuImport2.addActionListener(new ActionListener() {
 	      @Override
@@ -1284,35 +1301,35 @@ public class EvesDropper {
 	    	  // import data
 	    	  try {
 	    		Path folder = importUnzip();
-	    		
+
 	    		if(folder == null) return;
-            	
+
             	System.out.println("Import database");
             	File dbFile = new File(folder.toString() + File.separator + "magnum.sqlite");
-            	
+
             	if(!dbFile.exists())
             	{
             		System.out.println("Databasefile doesn't exist");
             		return;
             	}
             	dbUtil.dbImportDifferentDB(dbFile.getAbsolutePath());
-            	System.out.println("Import Done");	
-	            
+            	System.out.println("Import Done");
+
 	            } catch (IOException e1) {
-	              // TODO Auto-generated catch block
 	              e1.printStackTrace();
 	            }
 	          }
-	            
+
 	  	});
-	  
-	  
+
+
 	  jtbFunctionInvocation = new JTable();
 	  jspFunctionInvocation = new JScrollPane(jtbFunctionInvocation, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	  jspFunctionInvocation.setViewportView(jtbFunctionInvocation);
 	  jtbFunctionInvocation.setFillsViewportHeight(true);
-	  jtbFunctionInvocation.setModel(functionInvocation);
-	  
+	  jtbFunctionInvocation.setModel(functionInvocationTableModel);
+	  jtbFunctionInvocation.setRowHeight(this.fontSize);
+
 	  jtbFunctionInvocation.getColumnModel().getColumn(0).setPreferredWidth(20);
 	  jtbFunctionInvocation.getColumnModel().getColumn(1).setPreferredWidth(150);
 	  jtbFunctionInvocation.getColumnModel().getColumn(2).setPreferredWidth(130);
@@ -1322,14 +1339,15 @@ public class EvesDropper {
 	  jtbFunctionInvocation.getColumnModel().getColumn(0).setMaxWidth(20);
 	  jtbFunctionInvocation.setVisible(true);
 	  jtbFunctionInvocation.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-	  
-	  
+
+
 	  jtbDifferentFunctionInvocation = new JTable();
 	  jspDifferentFunctionInvocation = new JScrollPane(jtbDifferentFunctionInvocation, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	  jspDifferentFunctionInvocation.setViewportView(jtbDifferentFunctionInvocation);
 	  jtbDifferentFunctionInvocation.setFillsViewportHeight(true);
-	  jtbDifferentFunctionInvocation.setModel(differentFunctionInvocation);
-	  
+	  jtbDifferentFunctionInvocation.setModel(differentFunctionInvocationTableModel);
+	  jtbDifferentFunctionInvocation.setRowHeight(this.fontSize);
+
 	  jtbDifferentFunctionInvocation.getColumnModel().getColumn(0).setPreferredWidth(20);
 	  jtbDifferentFunctionInvocation.getColumnModel().getColumn(1).setPreferredWidth(150);
 	  jtbDifferentFunctionInvocation.getColumnModel().getColumn(2).setPreferredWidth(130);
@@ -1339,64 +1357,64 @@ public class EvesDropper {
 	  jtbDifferentFunctionInvocation.getColumnModel().getColumn(0).setMaxWidth(20);
 	  jtbDifferentFunctionInvocation.setVisible(true);
 	  jtbDifferentFunctionInvocation.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-	  
-	  
-	  
+
+
+
 	  JPanel jpTop = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
 	  jpTop.add(jbuImport);
 	  jpTop.add(jbuFindPasswords);
 	  jpTop.add(jbuImport2);
 	  jifImport.add(jpTop, BorderLayout.NORTH);
-	  
+
 	  JPanel jpBot = new JPanel();
 	  GroupLayout groupLayout = new GroupLayout(jpBot);
 	  jpBot.setLayout(groupLayout);
 	  groupLayout.setAutoCreateGaps(true);
 	  groupLayout.setAutoCreateContainerGaps(true);
-	  
+
 	  groupLayout.setHorizontalGroup(groupLayout
 			  .createParallelGroup(GroupLayout.Alignment.LEADING)
 			  	   .addGroup(groupLayout.createSequentialGroup()
 			  		   .addComponent(jspPasswords, 0, GroupLayout.DEFAULT_SIZE, 200)
 			  		   .addComponent(jspPasswordTimeline))
 			  	);
-	  
+
 	  groupLayout.setVerticalGroup(groupLayout.createSequentialGroup()
 			    .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 			        .addComponent(jspPasswords)
 			        .addComponent(jspPasswordTimeline)));
-	  
+
 	  jifImport.add(jpBot, BorderLayout.CENTER);
-	  
+
 	  // Bottom
 	  JPanel jpBottom = new JPanel(new BorderLayout());
 	  GroupLayout bottomGroupLayout = new GroupLayout(jpBottom);
 	  jpBottom.setLayout(bottomGroupLayout);
 	  bottomGroupLayout.setAutoCreateGaps(true);
 	  bottomGroupLayout.setAutoCreateContainerGaps(true);
-	  
+
 	  bottomGroupLayout.setHorizontalGroup(bottomGroupLayout
 			  .createParallelGroup(GroupLayout.Alignment.LEADING)
 			  	   .addGroup(bottomGroupLayout.createSequentialGroup()
 			  		   .addComponent(jspFunctionInvocation)
 			  		   .addComponent(jspDifferentFunctionInvocation))
 			  	);
-	  
+
 	  bottomGroupLayout.setVerticalGroup(bottomGroupLayout.createSequentialGroup()
 			    .addGroup(bottomGroupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 			        .addComponent(jspFunctionInvocation)
 			        .addComponent(jspDifferentFunctionInvocation)));
-	  
-	  
+
+
 	  jpBottom.setPreferredSize(new Dimension(100, 350));
 	  //jpBottom.add(jspFunctionInvocation, BorderLayout.WEST);
 	  //jpBottom.add(jspDifferentFunctionInvocation, BorderLayout.EAST);
 	  jifImport.add(jpBottom, BorderLayout.SOUTH);
-	  
+
 	  desktopPane.add(jifImport);
 	  jifImport.setVisible(true);
-	  
-	  
+
+
   }
 
   private void onConnect(String[] addr) throws IOException {
@@ -1412,10 +1430,11 @@ public class EvesDropper {
     jtaBlackWhiteList.setEnabled(false);
 
     try {
-      BlackWhiteListContainer container = new BWListParser().parse(jtaBlackWhiteList.getText());
-      networkCommunication.write(CommandBuilder.buildForBWListCmd(jrbPureWhiteList.isSelected(), container.packages,
-          container.packageWildcards, container.classes, container.classesWildcards, container.methods,
-          container.methodWildcards));
+        BlackWhiteListContainer container = new BWListParser().parse(jtaBlackWhiteList.getText());
+        networkCommunication.write(CommandBuilder.buildForBWListCmd(jrbPureWhiteList.isSelected(), container.packages,
+                container.packageWildcards, container.classes, container.classesWildcards, container.methods,
+                container.methodWildcards));
+
       jtaBlackWhiteList.setDisabledTextColor(new Color(0, 100, 0));
       globalWBList = true;
     } catch (Exception e1) {
@@ -1441,7 +1460,7 @@ public class EvesDropper {
 
     try {
       LolCat.connectIfNecessary(addr[0]);
-    } catch (Exception exx) {
+    } catch (Exception ignored) {
     }
     new Thread() {
       public void run() {
@@ -1453,13 +1472,13 @@ public class EvesDropper {
             TYPE type = TYPE.I;
             try {
               type = TYPE.valueOf(Character.toString(aLine.charAt(0)));
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
-            
+
             if (aLine.length() >= 1)
             {
 	            	String[] line = aLine.charAt(1) == '/' ? aLine.substring(2).split(":", 2) : aLine.split(":", 2);
-	            
+
 	            if (!line[0].contains("StrictMode")) {
 	              if (line.length < 2)
 	                logTableModel.addLogMessage(type, "", aLine);
@@ -1482,11 +1501,11 @@ public class EvesDropper {
   }
 
   private void onLogTextChanged() {
-    if (jtfFilterLog.getText().length() == 0)
-      logTableModel.filterBy(null);
-    else
-      logTableModel.filterBy(jtfFilterLog.getText());
-    doRepaint(jtbHooks);
+
+    TableRowSorter<LogMessageTableModel> trs = new TableRowSorter<>(logTableModel);
+    jtbLog.setRowSorter(trs);
+
+    trs.setRowFilter(RowFilter.regexFilter("(?i)" + jtfFilterLog.getText()));
   }
 
   private void doRepaint(final JComponent comp) {
@@ -1521,7 +1540,7 @@ public class EvesDropper {
     jbuConnect.setEnabled(!state);
     jlbState.setForeground(state ? Color.GREEN : Color.RED);
     jlbStatus.setText(info);
-    jlbStatus.setIcon(state ? GuiConstants.ICON_CONNECTED : GuiConstants.ICON_DISCONECTED);
+    jlbStatus.setIcon(state ? GuiConstants.ICON_CONNECTED : GuiConstants.ICON_DISCONNECTED);
   }
 
   private void setConnectionState(boolean state) {
@@ -1647,19 +1666,19 @@ public class EvesDropper {
       moustacheDecompiler.decompile(methodName, decompileContinuation);
     }
 
-    public void decompile(final String methodName) {
+    void decompile(final String methodName) {
       decompile(methodName, false);
     }
   };
-  
-  public void findPasswords()
+
+  private void findPasswords()
   {
 	  Pair<String, String> pair1 = new Pair<String, String>("javax.crypto.spec.SecretKeySpec", "<init>");
 	  List<Pair<String, String>> list = new ArrayList<Pair<String, String>>();
 	  list.add(pair1);
-	  
+
 	  List<DBInvocation> dbInvocationPre = new ArrayList<DBInvocation>();
-	  
+
 	  for( Pair<String, String> mPair : list) {
 		  try {
 			  dbInvocationPre.addAll(dbUtil.findPasswords(mPair.getKey(), mPair.getValue()));
@@ -1667,132 +1686,132 @@ public class EvesDropper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		  
-		  
-		  
+
+
+
 	  }
 	  System.out.println(dbInvocationPre.size() + " Passwords found");
-	  
+
 
 	  //List<DBInvocation> dbInvocationPost = new ArrayList<DBInvocation>();
-	  
+
 	  for(DBInvocation dbInvocation : dbInvocationPre) {
 		  //System.out.println(dbInvocation.getParamString());
 		  List<String> paramList = JavaNameHelper.getParameters(dbInvocation.getParamString());
 		  String password = paramList.get(0);
-		  
+
 		  if(!passwordList.contains(password))
 			  passwordList.addElement(password);
-		  
-		  
+
+
 		  //dbInvocationPost.addAll(dbUtil.findPasswords(password));
-		  
-	  } 
-	  
-	
-	  
+
+	  }
+
+
+
   }
-  
+
 private Path importUnzip() throws IOException {
-	
+
 	Path folder = null;
-	
+
 	JFileChooser jfc = new JFileChooser();
     int res = jfc.showOpenDialog(null);
     if (res == JFileChooser.APPROVE_OPTION) {
-      	
+
       	folder = Files.createTempDirectory("magnum");
-      	
+
       	//get the zip file content
-      	ZipInputStream zis = 
+      	ZipInputStream zis =
       		new ZipInputStream(
       				new FileInputStream(jfc.getSelectedFile().getCanonicalPath()));
-      	
+
       	//get the zipped file list entry
       	ZipEntry ze = zis.getNextEntry();
-  
+
       	while(ze != null) {
-   
+
       	   String fileName = ze.getName();
              File newFile = new File(folder.toString() + File.separator + fileName);
-   
+
              System.out.println("file unzip : "+ newFile.getAbsoluteFile());
-   
+
               //create all non exists folders
               //else you will hit FileNotFoundException for compressed folder
               new File(newFile.getParent()).mkdirs();
-   
-              FileOutputStream fos = new FileOutputStream(newFile);             
-   
+
+              FileOutputStream fos = new FileOutputStream(newFile);
+
               int len;
               byte []buffer = new byte[1024];
               while ((len = zis.read(buffer)) > 0) {
          		fos.write(buffer, 0, len);
               }
-   
-              fos.close();   
+
+              fos.close();
               ze = zis.getNextEntry();
       	}
-   
+
         zis.closeEntry();
       	zis.close();
-   
+
       	System.out.println("Unzip done");
-		
+
 	}
-    
+
     return folder;
 }
 
 private List<DBInvocation> findInvocationDiff(List<DBInvocation> trace, DBInvocation origin) {
-	
+
 	List<DBInvocation> invocationList = dbUtil.getDiffInvocationBy(origin);
 	List<DBInvocation> invocationReturn = new ArrayList<DBInvocation>();
-	
+
 	for(DBInvocation invocation : invocationList) {
-		
+
 		List<DBInvocation> invocationTrace = new ArrayList<DBInvocation>();
 		CallGraph dummyGraph = new CallGraph();
 		boolean isEqual = true;
-		
-        long id = (long) invocation.getId();
+
+        long id = invocation.getId();
         dbUtil.createInvocationTraceDiff(invocationTrace, dummyGraph, id, true);
         dbUtil.createInvocationTraceDiff(invocationTrace, dummyGraph, id, false);
         sortDBInvocationList(invocationTrace);
-        
+
         if(trace.size() == invocationTrace.size()) {
         	// Trace equal
         	for(int i = 0; i < trace.size(); i++) {
         		if(trace.get(i).getClassName().equals(invocationTrace.get(i).getClassName()) &&
-        				trace.get(i).getMethodName().equals(invocationTrace.get(i).getMethodName()) && 
+        				trace.get(i).getMethodName().equals(invocationTrace.get(i).getMethodName()) &&
         				trace.get(i).getUniqueMethodName().equals(invocationTrace.get(i).getUniqueMethodName())) {
-        			
+                  System.out.println("Empty trace body");
         		}
         		else
         		{
         			isEqual = false;
         		}
         	}
-        	
+
         }
         else
         {
         	isEqual = false;
         }
-        
-        
+
+
         if(isEqual)
         {
         	invocationReturn.addAll(invocationTrace);
-        	invocationReturn.add(new DBInvocation(0, false, "", "", "", "", new Timestamp(0), ""));
+        	invocationReturn.add(new DBInvocation(0, false, "", "", "", "", new Timestamp(0), "", 0));
         }
 	}
-	
+
 	return invocationReturn;
 }
 
 private static void sortDBInvocationList(List<DBInvocation> list) {
-    
+
 	Collections.sort(list, new Comparator<DBInvocation>() {
 
 		@Override
@@ -1804,22 +1823,66 @@ private static void sortDBInvocationList(List<DBInvocation> list) {
 
   private class DBQueryExecutor implements Runnable {
     public void run() {
+      int y = 0;
       while (true) {
         try {
           Thread.sleep(300);
           Rectangle r = jspTimeline.getVisibleRect();
-          timelineTableModel.setContent(dbUtil.query(jtfFilterTimeline.getLastText()));
+
+          if(resetTimelineTable )
+          {
+            resetTimelineTable = false;
+            timelineTableModel.deleteData();
+            jlNumberOfHits.setText("0 elements");
+            TableRowSorter<TimelineTableModel> trs = new TableRowSorter<>(timelineTableModel);
+            jtbTimeline.setRowSorter(trs);
+          }
+          List<DBInvocation> events = dbUtil.query(jtfFilterTimeline.getLastText());
+
+          int limit = getSQLLimit();
+          int rows = timelineTableModel.getRowCount();
+          if(rows == limit) //reached limit
+          {
+            continue;
+          }
+          for (DBInvocation event : events) {
+            timelineTableModel.setValueAt(event, rows, 1);
+            if (jtfSearchTimeline.getText().length() == 0)
+              jlNumberOfHits.setText(String.valueOf(timelineTableModel.getRowCount()) + " elements");
+          }
+
           jspTimeline.scrollRectToVisible(r);
-          doRepaint(jtbTimeline);
-        } catch (SQLException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
         } catch (Exception e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
       }
     }
+  }
+
+  private int getSQLLimit()
+  {
+    int limit = -1;
+    String limitString = jtfFilterTimeline.getText().replaceAll("\\s+", " ");
+    limitString += '\0';
+    int positionOfLimit = limitString.indexOf("LIMIT");
+    int endOfLimit = -1;
+
+    if(positionOfLimit != -1 )
+    {
+      endOfLimit = limitString.indexOf(' ', positionOfLimit + 6); //length of LIMIT + a whitespace
+      if (endOfLimit == -1)
+      {
+        endOfLimit = limitString.indexOf('\0', positionOfLimit);
+        try {
+          limit = Integer.parseInt(limitString.substring(positionOfLimit + 6, endOfLimit));
+        }
+        catch(NumberFormatException e)
+        {
+          return -1;
+        }
+      }
+    }
+    return limit;
   }
 
 }

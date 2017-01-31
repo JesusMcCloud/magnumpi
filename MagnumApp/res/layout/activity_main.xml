@@ -18,14 +18,15 @@
     </GridLayout>
 
     <ImageView
-        android:id="@+id/imageView1"
-        android:layout_width="230dp"
-        android:layout_height="133dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:scaleType="fitCenter"
-        android:src="@drawable/magnum_pi" />
+            android:id="@+id/imageView1"
+            android:layout_width="230dp"
+            android:layout_height="133dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/magnum_pi"
+            android:layout_alignParentTop="true" android:layout_centerHorizontal="true"/>
+    <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" android:layout_below="@+id/gridLayout1"
+            android:layout_alignParentLeft="true" android:layout_marginTop="10dp"/>
 
 </RelativeLayout>

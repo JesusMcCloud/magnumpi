@@ -23,11 +23,11 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 public interface GuiConstants {
-  public static final String DEFAULT_QUERY    = "WHERE HIDE=0 ORDER BY timestamp DESC LIMIT 500";
+  public static final String DEFAULT_QUERY    = "ORDER BY timestamp ASC LIMIT 1000";
   public static final String PATH_RES_ICONS   = "/at/tugraz/iaik/magnum/client/res/gui/";
   public static final String NAME_ICON_MAGNUM = "magnum_pi.png";
 
-  public static final Icon   ICON_DISCONECTED = new ImageIcon(EvesDropper.class.getResource(PATH_RES_ICONS
+  public static final Icon   ICON_DISCONNECTED = new ImageIcon(EvesDropper.class.getResource(PATH_RES_ICONS
                                                   + "disconnected.png"));
   public static final Icon   ICON_CONNECTED   = new ImageIcon(EvesDropper.class.getResource(PATH_RES_ICONS
                                                   + "connected.png"));

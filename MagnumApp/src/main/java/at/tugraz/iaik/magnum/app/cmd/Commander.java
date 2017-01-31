@@ -59,22 +59,22 @@ public abstract class Commander {
 
       if (toBeHooked) {
         bridge.connect(pkgName);
-        Log.d("MAGNUM", "Commander: connected bridge");
+        ////Log.d("MAGNUM", "Commander: connected bridge");
       } else {
         bridge.disconnect(pkgName);
-        Log.d("MAGNUM", "Commander: killed bridge");
+        ////Log.d("MAGNUM", "Commander: killed bridge");
       }
 
     } else if (cmd instanceof RequestPackageConfigCommand) {
       try {
-        Log.d(Constants.TAG, "Send Config");
+        ////Log.d(Constants.TAG, "Send Config");
         PcComm.getInstance().write(TransportObjectBuilder.buildForPackageConfig(prefs.getPackageConfig()));
       } catch (Exception e) {
         e.printStackTrace();
       }
     } else if (cmd instanceof HookUnhookMethodCommand) {
       try {
-        Log.d(Constants.TAG, "HUMC");
+        ////Log.d(Constants.TAG, "HUMC");
         HookUnhookMethodCommand command = (HookUnhookMethodCommand) cmd;
         prefs.setMethodHookState(command.getPkg(), command.getMethodHooks());
         ServiceSideBridge bridge = ServiceSideBridge.getInstance();

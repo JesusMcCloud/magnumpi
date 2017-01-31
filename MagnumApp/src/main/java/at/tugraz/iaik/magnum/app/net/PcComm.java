@@ -76,7 +76,7 @@ public class PcComm {
     while (socket == null && port <= 65535) {
       try {
         socket = new ServerSocket(port);
-        Log.d(Constants.TAG, "Running server on " + socket.getLocalSocketAddress() + ":" + socket.getLocalPort());
+        ////Log.d(Constants.TAG, "Running server on " + socket.getLocalSocketAddress() + ":" + socket.getLocalPort());
         return socket;
       } catch (IOException e) {
         ++port;

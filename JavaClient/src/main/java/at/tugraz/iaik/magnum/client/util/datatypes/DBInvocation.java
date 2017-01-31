@@ -23,7 +23,7 @@ import java.util.Date;
 
 public class DBInvocation {
   // "CREATE TABLE IF NOT EXISTS invocations(ID IDENTITY PRIMARY KEY, INTERESTING BOOLEAN, CLASS TEXT, METHOD TEXT, PARAM_STRING TEXT, RETURN_STRING TEXT, TIMESTAMP DATE)");
-  private final long    id, callerID;
+  private final long    id, callerID, rowid;
   private boolean       interesting;
   private final boolean callerKnown;
   private final String  className, methodName, paramString, retString;
@@ -31,7 +31,7 @@ public class DBInvocation {
   private final String  uniqueMethodName;
 
   public DBInvocation(long id, boolean interesting, String className, String methodName, String paramString,
-      String retString, Date timestamp, String uniqueMethodName) {
+      String retString, Date timestamp, String uniqueMethodName, long rowid) {
     this.id = id;
     this.interesting = interesting;
     this.className = className;
@@ -42,6 +42,7 @@ public class DBInvocation {
     this.uniqueMethodName = uniqueMethodName;
     this.callerID = 0;
     this.callerKnown = false;
+    this.rowid = rowid;
   }
 
   public DBInvocation(long id, boolean interesting, String className, String methodName, String paramString,
@@ -56,7 +57,7 @@ public class DBInvocation {
     this.uniqueMethodName = uniqueMethodName;
     this.callerID = callerID;
     this.callerKnown = callerKnown;
-
+    this.rowid = 0;
   }
 
   public long getId() {
@@ -79,6 +80,9 @@ public class DBInvocation {
     return methodName;
   }
 
+  public long getRowId() {
+    return this.rowid;
+  }
   public String getParamString() {
     return paramString;
   }

@@ -34,16 +34,12 @@ public class InstanceModel extends ModelObject {
   @XmlElement
   private final byte[]    blobData;
 
-  @XmlElement
-  private final String    asString;
-
   private Object          data;
 
   public InstanceModel(final TypeModel type, final byte[] data) {
     this.type = type;
     blobData = data;
     unpack();
-    asString = FormattedInstanceNodeFactory.toString(this.data);
   }
 
   public TypeModel getType() {
@@ -69,7 +65,7 @@ public class InstanceModel extends ModelObject {
       data = objectStream.readObject();
       objectStream.close();
     } catch (IOException e) {
-      e.printStackTrace();
+    //    e.printStackTrace();
     } catch (ClassNotFoundException e) {
       // Well, FUCK
       System.err.println(e.getMessage());

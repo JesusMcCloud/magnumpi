@@ -70,7 +70,7 @@ public class DBUtil implements IDBUtil {
         // CREATE TABLE TEST(ID INT PRIMARY KEY, NAME VARCHAR(255))
         conn.createStatement()
             .execute(
-                "CREATE TABLE IF NOT EXISTS invocations(ID IDENTITY PRIMARY KEY, INTERESTING BOOLEAN, CLASS TEXT, METHOD TEXT, ARGUMENTS TEXT, RETURN_VALUE TEXT, TIMESTAMP TIMESTAMP, UMN TEXT, CALLER LONG, CALLER_KNOWN BOOLEAN, HIDE BOOLEAN DEFAULT 0)");
+                "CREATE TABLE IF NOT EXISTS invocations(ID IDENTITY PRIMARY KEY, INTERESTING BOOLEAN, CLASS TEXT, METHOD TEXT, ARGUMENTS TEXT, RETURN_VALUE TEXT, TIMESTAMP TIMESTAMP, UMN TEXT, CALLER LONG, CALLER_KNOWN BOOLEAN)");
         running = true;
       }
     } catch (ClassNotFoundException | SQLException e) {
@@ -91,28 +91,9 @@ public class DBUtil implements IDBUtil {
 		Class.forName("org.sqlite.JDBC");
 		conn = DriverManager.getConnection("jdbc:sqlite:" + dbFile);
 		
-		PreparedStatement stmt = conn.prepareStatement("select sql from sqlite_master where tbl_name = 'invocations' and sql like '%hide%'"); // and sql like 'hide' ");
-		boolean doAlter = true;
-		
+		PreparedStatement stmt = conn.prepareStatement("select sql from sqlite_master where tbl_name = 'invocations'");
 		synchronized (this) {
-		      ResultSet rs = stmt.executeQuery();
-		      
-		      while (rs.next()) {
-		    	  doAlter = false;
-		      }
-		      
-		      if(doAlter)
-		      {
-		    	  PreparedStatement alterStmt = conn.prepareStatement("alter table 'invocations' add column HIDE BOOLEAN DEFAULT 0");
-		    	  alterStmt.execute();
-		      }
-		      
-		      /*
-		      PreparedStatement stmt1 = conn.prepareStatement("select sql from sqlite_master where tbl_name = 'invocations' and sql like '%hide%'"); // and sql like 'hide' ");
-		      ResultSet rs1 = stmt1.executeQuery();
-		      while (rs1.next()) {
-		    	  System.out.println(rs1.getString(1));
-		      } */
+		      stmt.executeQuery();
 			}
 
 		} catch (ClassNotFoundException | SQLException e) {
@@ -148,7 +129,7 @@ public class DBUtil implements IDBUtil {
       ResultSet rs = stmt.executeQuery();
       while (rs.next()) {
         invocatons.add(new DBInvocation(rs.getLong(1), rs.getBoolean(2), rs.getString(3), rs.getString(4), rs
-            .getString(5), rs.getString(6), rs.getTimestamp((7)), rs.getString(8)));
+            .getString(5), rs.getString(6), rs.getTimestamp((7)), rs.getString(8), rs.getLong(11)));
       }
       return invocatons;
     }
@@ -163,34 +144,9 @@ public class DBUtil implements IDBUtil {
       while (rs.next()) {
         // TODO: check columns
         return (new DBInvocation(rs.getLong(1), rs.getBoolean(2), rs.getString(3), rs.getString(4), rs.getString(5),
-            rs.getString(6), rs.getTimestamp((7)), rs.getString(8)));
+            rs.getString(6), rs.getTimestamp((7)), rs.getString(8), rs.getLong(11)));
       }
       throw new SQLException("FUBAR");
-    }
-  }
-  
-  public void hideTimeLineItems(String column, String arg, int mode) throws SQLException {
-	  
-    PreparedStatement stmt = null;
-    
-    switch (mode) {
-    case 0:
-    	stmt = conn.prepareStatement("UPDATE invocations SET hide =1 WHERE NOT " + column + "=?");
-    	stmt.setString(1, arg);
-    	break;
-    case 1:
-    	stmt = conn.prepareStatement("UPDATE invocations SET hide =1 WHERE " + column + "=?");
-    	stmt.setString(1, arg);
-    	break;
-    case 2:
-    	stmt = conn.prepareStatement("UPDATE invocations SET hide =0");
-    	break;
-    default:
-    	throw new SQLException("Mode not available");
-    }
-    
-    synchronized (this) {
-    	stmt.execute();
     }
   }
 
@@ -198,7 +154,7 @@ public class DBUtil implements IDBUtil {
   public void write(MethodInvocationModel invocation) {
 
     try {
-      PreparedStatement stmt = conn.prepareStatement("INSERT INTO invocations VALUES(?,?,?,?,?,?,?,?,?,?,?)");
+      PreparedStatement stmt = conn.prepareStatement("INSERT INTO invocations VALUES(?,?,?,?,?,?,?,?,?,?)");
       stmt.setLong(1, invocation.getCallId());
       stmt.setBoolean(2, false);
       stmt.setString(3, invocation.getMethodModel().getClassName());
@@ -209,7 +165,6 @@ public class DBUtil implements IDBUtil {
       stmt.setString(8, invocation.getMethodModel().getUniqueMethodName());
       stmt.setLong(9, invocation.getCallerId());
       stmt.setBoolean(10, invocation.isCallerKnown());
-      stmt.setBoolean(11, false);
       queue.add(stmt);
     } catch (SQLException e) {
       e.printStackTrace();

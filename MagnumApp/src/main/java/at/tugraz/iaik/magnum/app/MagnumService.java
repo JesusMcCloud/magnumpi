@@ -53,7 +53,7 @@ public class MagnumService extends Service {
 
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
-    Log.d("MAGNUM", "starting service");
+    ////Log.d("MAGNUM", "starting service");
     prefs = Preferences.getInstance(getApplicationContext());
     Commander.init(prefs);
     connect();
@@ -78,7 +78,7 @@ public class MagnumService extends Service {
         try {
           interfaces = (PcComm.getInstance().getIPs());
 
-          Log.d("MAGNUM", "" + PcComm.getInstance().getPort());
+          ////Log.d("MAGNUM", "" + PcComm.getInstance().getPort());
 
           while (running) {
             if (interfaces.size() == 0) {
@@ -119,7 +119,7 @@ public class MagnumService extends Service {
     try {
       PcComm.getInstance().start();
       for (PackageConfig pkg : prefs.getHookedPackages()) {
-        Log.d(Constants.TAG, "Connecting to " + pkg);
+        ////Log.d(Constants.TAG, "Connecting to " + pkg);
         bridge.connect(pkg.getPkg());
       }
       displayNotification();

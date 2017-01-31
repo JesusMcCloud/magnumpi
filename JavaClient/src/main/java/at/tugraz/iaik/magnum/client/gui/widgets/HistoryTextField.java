@@ -57,7 +57,7 @@ public class HistoryTextField extends LibSexyTextField {
   }
 
   public String getLastText() {
-    return "SELECT * FROM invocations " + lastText;
+    return "SELECT * , rowid FROM invocations " + lastText;
   }
 
   public void invoke() {

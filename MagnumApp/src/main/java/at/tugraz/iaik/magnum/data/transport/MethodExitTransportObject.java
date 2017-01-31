@@ -19,11 +19,10 @@
  *******************************************************************************/
 package at.tugraz.iaik.magnum.data.transport;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import android.util.Log;
+import org.json.JSONObject;
+
+import java.io.*;
 import java.lang.reflect.Member;
 
 public class MethodExitTransportObject extends MethodInfoTransportObject {
@@ -32,7 +31,7 @@ public class MethodExitTransportObject extends MethodInfoTransportObject {
   private byte[]            transportBuffer;
   private final long        identifier;
 
-  public MethodExitTransportObject(final Member method, final Object result, final Long identifier) {
+  MethodExitTransportObject(final Member method, final Object result, final Long identifier) {
     super(method);
     this.identifier = identifier;
 
@@ -44,35 +43,25 @@ public class MethodExitTransportObject extends MethodInfoTransportObject {
     }
   }
 
-  void packForTransport(Object result) throws IOException {
+  private void packForTransport(Object result) throws IOException {
     ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     ObjectOutputStream out = new ObjectOutputStream(buffer);
-    try {
+
       if (result == null) {
+        //Log.d("MAGNUM", "exit packet is null");
         out.writeObject(result);
         return;
       }
-
-      if (result instanceof Serializable) {
         try{
-          out.writeObject(result);
-          
-        }catch(StackOverflowError stockOVerflow){
-          out.writeObject("StackOverflow on serializing "+result.getClass().getCanonicalName());
-        }
-      } else {
-        try {
-          if (result.getClass().getMethod("toString").getDeclaringClass().equals(Object.class))
-            out.writeObject("(non-serializable: " + result.getClass().getName() + ")");
-          else
-            out.writeObject(result.toString());
-        } catch (NoSuchMethodException e) {
-        }
-      }
-    } catch (NotSerializableException e) {
-      out.writeObject("(Exception during serialization: `" + e.getMessage() + "`);");
-    }
+          out.writeObject(((JSONObject) result).toString());
 
+        }catch(InvalidClassException e){
+          out.writeObject("packForTransport exit InvalidClassException "+result.getClass().getCanonicalName());
+        }catch(NotSerializableException e){
+          out.writeObject("packForTransport exit NotSerializableException "+result.getClass().getCanonicalName());
+        }catch(IOException e){
+          out.writeObject("packForTransport exit IOException "+result.getClass().getCanonicalName());
+        }
     out.close();
 
     transportBuffer = buffer.toByteArray();

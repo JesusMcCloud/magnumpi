@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright 2013 Alexander Jesner, Bernd Prﾃｼnster
- * Copyright 2013, 2014 Bernd Prﾃｼnster
+ * Copyright 2013 Alexander Jesner, Bernd Prünster
+ * Copyright 2013, 2014 Bernd Prünster
  *
  *     This file is part of Magnum PI.
  *
@@ -50,8 +50,6 @@ public interface IDBUtil extends Runnable {
   public void updateInvocationReturn(MethodInvocationModel invocationModel);
 
   public void createInvocationTrace(List<DBInvocation> invocationList, CallGraph cg, long id, boolean direction);
-  
-  public void hideTimeLineItems(String column, String arg, int mode) throws SQLException;
 
   public abstract void dbImportDifferentDB(String dbFile);
   

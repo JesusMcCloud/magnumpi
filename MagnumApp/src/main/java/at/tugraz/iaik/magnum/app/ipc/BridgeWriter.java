@@ -65,11 +65,11 @@ public class BridgeWriter implements Callable<Boolean> {
           if (cmd == null)
             continue;
 
-          Log.d("MAGNUM", "BridgeWriter: received cmd, forwarding it. " + cmd);
+          ////Log.d("MAGNUM", "BridgeWriter: received cmd, forwarding it. " + cmd);
           objectStream.writeObject(cmd);
           objectStream.flush();
         } catch (InterruptedException e) {
-          Log.d("MAGNUM", "BridgeWriter: was interrupted in commands.poll()");
+          ////Log.d("MAGNUM", "BridgeWriter: was interrupted in commands.poll()");
           Thread.currentThread().interrupt();
         }
       }

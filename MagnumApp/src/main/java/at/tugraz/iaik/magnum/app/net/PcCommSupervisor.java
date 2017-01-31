@@ -49,10 +49,10 @@ public class PcCommSupervisor implements Runnable {
       try {
         Socket sock = serverSocket.accept();
 
-        Log.d(Constants.TAG, "Spawning PcComm writer.");
+        ////Log.d(Constants.TAG, "Spawning PcComm writer.");
         PcCommWriter writer = new PcCommWriter(sock, queue);
 
-        Log.d(Constants.TAG, "Spawning PcComm reader.");
+        ////Log.d(Constants.TAG, "Spawning PcComm reader.");
         PcCommReader reader = new PcCommReader(sock);
         ArrayList<Callable<Boolean>> rw = new ArrayList<Callable<Boolean>>(2);
         rw.add(reader);
@@ -61,7 +61,7 @@ public class PcCommSupervisor implements Runnable {
         sock.close();
        // dispatcher.shutdownNow();
         
-        Log.d(Constants.TAG, "Reader or Writer done");
+        ////Log.d(Constants.TAG, "Reader or Writer done");
       } catch (Exception e) {
         e.printStackTrace();
       }

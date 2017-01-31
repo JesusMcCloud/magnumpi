@@ -28,11 +28,9 @@ public class LogMessageTableModel extends AbstractTableModel {
   private static final long serialVersionUID = 4321636797820597915L;
 
   private ArrayList<String[]> logMessages;
-  private LinkedList<String[]> filteredMessages;
 
-  String[] COLUMN_NAMES = { "Type", "Tag", "Message" };
+  private String[] COLUMN_NAMES = { "Type", "Tag", "Message" };
 
-  private String needle = null;
 
   public enum TYPE {
     V, D, I, W, E, F
@@ -40,36 +38,13 @@ public class LogMessageTableModel extends AbstractTableModel {
 
   public LogMessageTableModel() {
     logMessages = new ArrayList<>();
-    filteredMessages = new LinkedList<>();
-  }
-
-  public void filterBy(String needle) {
-    synchronized (logMessages) {
-      this.needle = needle;
-      filteredMessages.clear();
-      if (needle == null)
-        return;
-      this.needle = needle.toLowerCase();
-      for (String[] msg : logMessages) {
-        if (msg[1].toLowerCase().contains(needle))
-          filteredMessages.add(msg);
-      }
-    }
   }
 
   public void addLogMessage(TYPE type, String tag, String msg) {
     synchronized (logMessages) {
       String[] newMsg = { type.toString(), tag, msg };
       logMessages.add(newMsg);
-      int affectedRow;
-      if (needle == null) {
-        affectedRow = logMessages.size() - 1;
-      } else {
-        if (tag.toLowerCase().contains(needle))
-          filteredMessages.add(newMsg);
-        affectedRow = filteredMessages.size() - 1;
-      }
-      fireTableRowsInserted(affectedRow, affectedRow);
+      fireTableRowsInserted(getRowCount() - 1, getRowCount() - 1);
     }
   }
 
@@ -85,19 +60,15 @@ public class LogMessageTableModel extends AbstractTableModel {
 
   @Override
   public int getRowCount() {
-    if (needle == null) {
+    synchronized (logMessages) {
       return logMessages.size();
-    } else
-      return filteredMessages.size();
+    }
   }
 
   @Override
   public Object getValueAt(int row, int col) {
     synchronized (logMessages) {
-      if (needle == null)
         return logMessages.get(row)[col];
-      else
-        return filteredMessages.get(row)[col];
     }
   }
 

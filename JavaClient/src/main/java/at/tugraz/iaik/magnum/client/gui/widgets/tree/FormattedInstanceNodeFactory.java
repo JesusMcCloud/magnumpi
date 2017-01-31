@@ -32,18 +32,6 @@ public class FormattedInstanceNodeFactory {
   public static void format(DefaultMutableTreeNode node, Object data) {
 
     formatInternal(node, data, new HashSet<Object>());
-
-  }
-
-  public static String toString(Object data) {
-    try {
-
-      return toStringInternal(data, new HashSet<Object>(), 0);
-
-    } catch (StackOverflowError er) {
-      System.out.print("e");
-      return "Circular Dependency!";
-    }
   }
 
   private static void formatInternal(DefaultMutableTreeNode node, Object data, Set<Object> alreadyVisited) {

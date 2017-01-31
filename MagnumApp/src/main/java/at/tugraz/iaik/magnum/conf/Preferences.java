@@ -62,7 +62,7 @@ public class Preferences {
       e.printStackTrace();
       prefs = null;
     }
-    Log.d("PREF", prefs == null ? "null" : prefs.toString());
+    ////Log.d("PREF", prefs == null ? "null" : prefs.toString());
     packageConfig = getPackageSettings();
   }
 
@@ -72,7 +72,7 @@ public class Preferences {
     for (PackageInfo info : packages) {
       pkgNames.add(new PackageConfig(info.packageName, (String) ctx.getPackageManager().getApplicationLabel(
           info.applicationInfo)));
-      Log.d("PKGNAME", info.packageName);
+      ////Log.d("PKGNAME", info.packageName);
     }
     return pkgNames;
   }
@@ -90,14 +90,14 @@ public class Preferences {
           try {
             mConf = MethodHookConfig.fromJsonString(mhook);
             s.addMethodHookConfig(mConf.getMethodName(), mConf);
-            Log.d("PKGCONF", "Method: " + mConf.getMethodName() + ": " + mConf.getType());
+            ////Log.d("PKGCONF", "Method: " + mConf.getMethodName() + ": " + mConf.getType());
           } catch (Exception e) {
             e.printStackTrace();
           }
         }
         Set<String> unhookedClasses = prefs.getStringSet(s.getPkg() + "_unhookedClasses", new HashSet<String>());
         for (String str : unhookedClasses) {
-          Log.d("PKGCONF", "Class: " + str);
+          ////Log.d("PKGCONF", "Class: " + str);
         }
         s.addUnhookedClasses(unhookedClasses);
       } else
@@ -159,7 +159,7 @@ public class Preferences {
 
   public void setClassHookState(String pkg, Map<String, Boolean> map) {
     for (String clazz : map.keySet()) {
-      Log.d("MAGNUM", "UNHOOKING CLASS: " + clazz + "? " + map.get(clazz));
+      ////Log.d("MAGNUM", "UNHOOKING CLASS: " + clazz + "? " + map.get(clazz));
       if (map.get(clazz))
         packageConfig.get(pkg).addUnhookedClass(clazz);
       else
