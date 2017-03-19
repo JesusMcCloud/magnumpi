@@ -48,7 +48,6 @@ public class MethodExitTransportObject extends MethodInfoTransportObject {
     ObjectOutputStream out = new ObjectOutputStream(buffer);
 
       if (result == null) {
-        //Log.d("MAGNUM", "exit packet is null");
         out.writeObject(result);
         return;
       }

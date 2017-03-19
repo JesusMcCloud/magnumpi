@@ -36,12 +36,7 @@ public class StaticBlackWhiteList {
       "android.content.ContextWrapper", "android.util.TypedValue", "java.io.IOException", "com.actionbarsherlock",
       "com.google.ads", "com.google.analytics", "com.android.support.v", "android.os.handler", "android.text.",
       "android.support.v", "android.os.Handler", "android.os.Looper", "android.os.Message", "at.tugraz.iaik.",
-      "java.io.NotSerializableException", "android.os.Bundle",
-          "android.support.design.widget",
-          "android.os.Parcel"
-        //  "android",
-         // "android.content.Context"
-  };
+      "java.io.NotSerializableException", "android.os.Bundle", "android.support.design.widget", "android.os.Parcel"  };
 
   private final String[]   methodFQNBlacklist   = { "android.content.Context.getCacheDir",
       "android.content.ContextWrapper.getApplicationInfo", "android.widget.TextView.computeScroll",
@@ -117,7 +112,7 @@ public class StaticBlackWhiteList {
   }
 
   public boolean isSuperClass(final Class<?> classOfInterest, Class<?> clazz) {
-    // //Log.d("MAGNUM", "SUPERCLASS: checking "+classOfInterest+" against "+
+    // Log.d("MAGNUM", "SUPERCLASS: checking "+classOfInterest+" against "+
     // clazz);
     if (classOfInterest == null)
       return false;

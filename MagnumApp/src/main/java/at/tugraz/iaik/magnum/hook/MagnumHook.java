@@ -96,17 +96,16 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
     bridge = new HookSideBridge(messageQueue);
     Registry.setBridge(bridge);
 
-
     try {
-      //Log.d(TAG, "before bridge.retreiveInitCommand");
       bridge.retreiveInitCommand(lpparam.packageName);
-      //Log.d(TAG, "bridge.retreiveInitCommand finished");
-      ////Log.d(TAG, "hooking " + lpparam.packageName);
-      ////Log.d(TAG, Registry.pureWhiteList ? "Pure white-list mode engaged" : "Regular mode engaged.");
+      Log.d(TAG, "start handleLoadPackage()");
+      Log.d(TAG, "hooking " + lpparam.packageName);
+      Log.d(TAG, Registry.pureWhiteList ? "Pure white-list mode engaged" : "Regular mode engaged.");
     } catch (Exception e) {
       Log.w(TAG, lpparam.packageName + ": Magnum service not running");
       return;
     }
+
     barrier = new AtomicBoolean();
     patchedClasses = new HashSet<String>();
     hookedMethods = new HashSet<java.lang.reflect.Method>();
@@ -115,12 +114,12 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
 
     bridge.connect();
 
-    //Log.d(TAG, "handleLoadPackage for: " + lpparam.packageName);
+    Log.d(TAG, "handleLoadPackage for: " + lpparam.packageName);
     String apkPath = lpparam.appInfo.sourceDir;
-    //Log.d(TAG, "source dir is: " + apkPath);
+    Log.d(TAG, "source dir is: " + apkPath);
 
     postTransportObject(TransportObjectBuilder.buildForApkFile(apkPath, lpparam.packageName));
-    //Log.d(TAG, "Sent APK");
+    Log.d(TAG, "Sent APK");
 
     while (Registry.handshake.get() < 3) {
       Thread.sleep(100);
@@ -189,21 +188,11 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
         if (parameters[pos] != null) {
           JSONObject jsonParameters = new JSONObject();
           objectsArray[pos] = jsonParameters.put(parameters[pos].getClass().getCanonicalName(), parameters[pos].toString());
-
-          /*
-           try {
-            objectsArray[pos] = jsonParameters.put((pos+1) + ". Arg", mapper.writeValueAsString(parameters[pos]));
-          } catch (JsonProcessingException e) {
-            //Log.d("JACKSON", e.getMessage());
-          }
-           */
         }
       }
     }
     return objectsArray;
   }
-
-
 
 
   private void hookToClassloader(final ClassLoader classLoader, final String sourceDir) {
@@ -214,12 +203,8 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
     retrieveDexClasses(sourceDir);
 
     try {
-      //de.robv.android.xposed.XposedHelpers.findandhookm
       final java.lang.reflect.Method method = classLoaderClazz.getMethod("loadClass", String.class);
-      //Log.d(TAG, "hookToClassloader before classloaderHook");
-      //Log.d(TAG, "hooked method: class: " + method.getClass() + " method " + method.getName());
       XC_MethodHook classloaderHook = getClassLoaderHook(classLoader, getMethodLevelHook(), sourceDir);
-
 
       Unhook hook = XposedBridge.hookMethod(method, classloaderHook);
       Registry.addMethodHook(method, hook);
@@ -232,17 +217,15 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
     return new XC_MethodHook() {
       @Override
       protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-        //Log.d(TAG, "In getClassLoaderHook:XC_MethodHook, class: " + param.method.getClass() + "##" + param.method.getName());
         // Avoid infinite loop
         if (barrier.get()) {
           return;
         }
 
         final String classLoaded = (String) param.args[0];
-        //Log.d(TAG, "param 0 = loadedclass: " + classLoaded);
+        Log.d(TAG, "param 0 = loadedclass: " + classLoaded);
         if (param.args.length > 1) {
-          //Log.d(TAG, "params: " + param.args.length + " 2. param: " + param.args[1]);
-
+          Log.d(TAG, "params: " + param.args.length + " 2. param: " + param.args[1]);
         }
 
         List<String> foundClasses = findDexClassesStartingWithClassName(classLoaded);
@@ -251,18 +234,18 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
         }
 
         for (String loadedClass : foundClasses) {
-          //Log.d(TAG, "in for, size: " + foundClasses.size() + " loadedClass: " + loadedClass);
+          Log.d(TAG, "in for, size: " + foundClasses.size() + " loadedClass: " + loadedClass);
 
           if (isClassAlreadyPatched(loadedClass))
             return;
 
           if (Registry.isClassUnhooked(loadedClass)) {
-            ////Log.d(TAG, "Ignoring user blacklsited class: " + loadedClass);
+            Log.d(TAG, "Ignoring user blacklsited class: " + loadedClass);
             return;
           }
 
           if (bwList.isClassBlacklisted(loadedClass)) {
-            ////Log.d(TAG, "Ignoring blacklisted class: " + loadedClass);
+            Log.d(TAG, "Ignoring blacklisted class: " + loadedClass);
             return;
           }
 
@@ -271,19 +254,19 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
             Class<?> classOfInterest = findClass(loadedClass, classLoader);
             if (bwList.isSuperClassBlacklisted(classOfInterest)) {
               barrier.set(false);
-              //Log.d(TAG, "Ignoring superclass-blacklisted class: " + loadedClass);
+              Log.d(TAG, "Ignoring superclass-blacklisted class: " + loadedClass);
               return;
             }
 
             if (!Registry.pureWhiteList) { // otherwise check later
               if (!Registry.checkHookPackage(classOfInterest.getPackage().getName())) {
                 barrier.set(false);
-                //Log.d(TAG, "Ignoring globally package-blacklisted class: " + loadedClass);
+                Log.d(TAG, "Ignoring globally package-blacklisted class: " + loadedClass);
                 return;
               }
               if (!Registry.checkHookClass(classOfInterest)) {
                 barrier.set(false);
-                ////Log.d(TAG, "Ignoring globally blacklisted class: " + loadedClass);
+                Log.d(TAG, "Ignoring globally blacklisted class: " + loadedClass);
                 return;
               }
             }
@@ -296,19 +279,19 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
             java.lang.reflect.Method[] declaredMethods = classOfInterest.getDeclaredMethods();
             methods.addAll(Arrays.asList(declaredMethods));
 
-            final Set<Constructor> constructors = new HashSet<Constructor>();
+          final Set<Constructor> constructors = new HashSet<Constructor>();
 
-            final Constructor[] publicConstructors = classOfInterest.getConstructors();
-            constructors.addAll(Arrays.asList(publicConstructors));
-            Constructor[] declaredConstrucotrs = classOfInterest.getDeclaredConstructors();
-            constructors.addAll(Arrays.asList(declaredConstrucotrs));
+          final Constructor[] publicConstructors = classOfInterest.getConstructors();
+          constructors.addAll(Arrays.asList(publicConstructors));
+          Constructor[] declaredConstrucotrs = classOfInterest.getDeclaredConstructors();
+          constructors.addAll(Arrays.asList(declaredConstrucotrs));
 
-            //Log.d(TAG, "Patching class " + loadedClass + "; # of methods =" + methods.size());
+            Log.d(TAG, "Patching class " + loadedClass + "; # of methods =" + methods.size());
 
             postTransportObject(TransportObjectBuilder.buildForLoadClass(classOfInterest));
 
             for (java.lang.reflect.Method method : methods) {
-              //Log.d(TAG, "for methods -  class: " + method.getDeclaringClass() + " method: " + method.getName());
+              Log.d(TAG, "for methods -  class: " + method.getDeclaringClass() + " method: " + method.getName());
 
               try {
                 if (bwList.isSuperClass(classOfInterest, Thread.class)) {
@@ -336,19 +319,19 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
                 }
 
                 if (Modifier.isAbstract(method.getModifiers())) {
-                  ////Log.d(TAG, "Skipping abstract method: " + loadedClass + "." + method.getName());
+                  Log.d(TAG, "Skipping abstract method: " + loadedClass + "." + method.getName());
                   continue;
                 }
 
                 if (bwList.isBlacklisted(method)) {
-                  ////Log.d(TAG, "Skipping blacklisted method: " + method.getClass().getName() + "." + method.getName());
+                  Log.d(TAG, "Skipping blacklisted method: " + method.getClass().getName() + "." + method.getName());
                   continue;
                 }
 
                 if (!hookedMethods.contains(method)) {
 
                   if (!Registry.checkHookMethod(method)) {
-                    ////Log.d(TAG, "Ignoring globally blacklisted method: " + loadedClass + "." + method.getName());
+                    Log.d(TAG, "Ignoring globally blacklisted method: " + loadedClass + "." + method.getName());
                     continue;
                   }
 
@@ -375,9 +358,10 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
 
                 if (!hookedCtors.contains(ctor)) {
                   if (!Registry.checkHookMethod(ctor)) {
-                    ////Log.d(TAG, "Ignoring globally blacklisted constructor of class: " + loadedClass);
+                    Log.d(TAG, "Ignoring globally blacklisted constructor of class: " + loadedClass);
                     continue;
                   }
+
                   hookedCtors.add(ctor);
                   TransportObject msg = TransportObjectBuilder.buildForMethodHook(ctor);
 
@@ -408,7 +392,7 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
 
       private void rememberClass(String className) {
         patchedClasses.add(className);
-        ////Log.d(TAG, "Remembering " + className);
+        Log.d(TAG, "Remembering " + className);
       }
     };
   }
@@ -416,18 +400,14 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
   private void printStack(StackTraceElement[] trace) {
     int i = 0;
     for (StackTraceElement el : trace) {
-      //Log.d("MAGTRACE", i++ + " " + el.getClassName());
+      Log.d("MAGTRACE", i++ + " " + el.getClassName());
     }
   }
-
 
   private XC_MethodHook getMethodLevelHook() {
     return new XC_MethodHook() {
       @Override
       protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-
-        //Log.d(TAG, "In XC_MethodHook beforeHookedMethod: ");
-
         /*
          * Apache’s Java implementation tries to come up with a
          * SERIAL_VERSION_UID when none is present. The algorithm applied uses a
@@ -438,7 +418,7 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
          * cannot black-list MessageDigest.
          * http://opensourcejavaphp.net/java/harmony
          * /java/io/ObjectStreamClass.java.html
-        */
+         */
 
         if (param.method.getDeclaringClass().getName().equals("java.security.MessageDigest")) {
           StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
@@ -447,8 +427,6 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
               return;
             }
         }
-
-        //Log.d(TAG, "beforeHookedMethod: method: " +  param.method.getName());
 
         boolean haveID = false;
         // available
@@ -461,16 +439,10 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
           try {
             prevID = stackmap.get(currentThreadID).peek();
             haveID = true;
-          } catch (ClassCastException e) {
-            Log.e(TAG, e.getMessage());
-          }
-          catch(NullPointerException e)
-          {
-            Log.e(TAG, e.getMessage());
-          }
-          catch(EmptyStackException e)
-          {
+          } catch(EmptyStackException e) {
             Log.e(TAG, "Stack is empty!");
+          } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
           }
         }
 
@@ -478,7 +450,6 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
         if (!Registry.triggered) {
           if (Registry.isClassUnhooked(param.method.getDeclaringClass().getName()))
           {
-            //Log.d(TAG, "beforeHookedMethod: class is unhooked - return - method: " +  param.method.getName());
             return;
           }
 
@@ -497,17 +468,14 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
 
           MethodHookConfig methodHookConfig = Registry.getMethodHookConfig(methodName);
           if (methodHookConfig == null) {
-            //Log.d(TAG, "beforeHookedMethod: methodhookconfig is null - method: " +  methodName);
             long identifier = idGen.getID();
             stackmap.get(currentThreadID).push(identifier);
             stackmap.get(Thread.currentThread().getId()).push(identifier);
             TransportObject msg = TransportObjectBuilder.buildForMethodEntry(param.method, getParametersInJSONStructure(param.args), identifier,                    prevID, haveID);
             param.setObjectExtra("magnumCallIdentifier", identifier);
             postTransportObject(msg);
-          }
-          else {
-            //Log.d(TAG, "beforeHookedMethod: in else of methodhookconfig - method: " +  methodName);
-            ////Log.d(TAG, methodHookConfig.toJSonString());
+          } else {
+            Log.d(TAG, methodHookConfig.toJSonString());
             if (methodHookConfig.getType() == MethodHookConfig.NONE)
               return; // this should never happen
             else if (methodHookConfig.getType() == MethodHookConfig.TRIGGER) {
@@ -523,7 +491,6 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
             }
           }
         } else {
-          //Log.d(TAG, "beforeHookedMethod: not triggered: " +  param.method.getName());
           long identifier = idGen.getID();
           stackmap.get(currentThreadID).push(identifier);
           try {
@@ -534,12 +501,11 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
 
           } catch (StackOverflowError err) {
             Log.e("MAGSTACK",
-                    err.getMessage() + ",\n" + param.method.getDeclaringClass() + "." + param.method.getName());
+                err.getMessage() + ",\n" + param.method.getDeclaringClass() + "." + param.method.getName());
             // err.printStackTrace();
           }
           param.setObjectExtra("magnumCallIdentifier", identifier);
         }
-
       }
 
       @Override
@@ -558,7 +524,7 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
           }
         } catch (Exception e) {
           Log.e("MAGNUM",
-                  "************************************************ STACKMAP CORRUPTED!!! *********************************************");
+              "************************************************ STACKMAP CORRUPTED!!! *********************************************");
           Log.e("MAGNUM", "*** " + param.method.getDeclaringClass().getCanonicalName() + "." + param.method.getName());
         }
 
@@ -594,10 +560,10 @@ public class MagnumHook extends Application implements IXposedHookLoadPackage, C
   }
 
   public synchronized void unhookAll() {
-    ////Log.d(Constants.TAG, "Unhooking everything!");
+    Log.d(Constants.TAG, "Unhooking everything!");
     for (MethodHook hook : Registry.getHooks()) {
       hook.callback.unhook();
-      ////Log.d(TAG, "unhooking " + hook.method.getDeclaringClass() + "." + hook.method.getName());
+      Log.d(TAG, "unhooking " + hook.method.getDeclaringClass() + "." + hook.method.getName());
     }
 
     Registry.clearHooks();
