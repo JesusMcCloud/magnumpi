@@ -66,7 +66,7 @@ public class ServiceSideBridgeSupervisor implements Callable<Boolean> {
     if (!connected)
       return;
 
-    ////Log.d("MAGNUM", "SSBSupervisor: trying to execute " + cmd);
+    Log.d("MAGNUM", "SSBSupervisor: trying to execute " + cmd);
     commands.add(cmd);
   }
 
@@ -120,7 +120,7 @@ public class ServiceSideBridgeSupervisor implements Callable<Boolean> {
 
   public void disconnect() {
     if (running) {
-      ////Log.d(Constants.TAG, "SSB SHutdown");
+      Log.d(Constants.TAG, "SSB SHutdown");
       running = false;
       connected = false;
 
@@ -150,7 +150,7 @@ public class ServiceSideBridgeSupervisor implements Callable<Boolean> {
       }
 
       dispatcher.shutdownNow();
-      ////Log.d(Constants.TAG, "SSB Shutdown done: " + dispatcher.isTerminated());
+      Log.d(Constants.TAG, "SSB Shutdown done: " + dispatcher.isTerminated());
     }
   }
 }

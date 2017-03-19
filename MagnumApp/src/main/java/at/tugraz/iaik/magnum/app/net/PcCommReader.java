@@ -38,7 +38,7 @@ public class PcCommReader implements Callable<Boolean> {
 
   @Override
   public Boolean call() throws IOException {
-    ////Log.d(Constants.TAG, "calling reader");
+    Log.d(Constants.TAG, "calling reader");
     consume();
     return true;
   }
@@ -48,7 +48,7 @@ public class PcCommReader implements Callable<Boolean> {
       ObjectInputStream stream = new ObjectInputStream(socket.getInputStream());
       Command cmd;
       while ((cmd = (Command) stream.readObject()) != null) {
-        ////Log.d(Constants.TAG, "COMM Rxd: " + cmd.getClass().getSimpleName());
+        Log.d(Constants.TAG, "COMM Rxd: " + cmd.getClass().getSimpleName());
         Commander.handleCommand(cmd);
       }
     } catch (Exception e) {

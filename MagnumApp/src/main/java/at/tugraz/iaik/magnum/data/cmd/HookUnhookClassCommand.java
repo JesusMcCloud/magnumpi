@@ -39,14 +39,14 @@ public class HookUnhookClassCommand extends Command {
   public HookUnhookClassCommand(String pkg, Set<String> unhookedClasses, boolean hook) {
     this.pkg = pkg;
     try {
-      ////Log.d("MAGNUM", "HUCC: " + pkg);
+      Log.d("MAGNUM", "HUCC: " + pkg);
     } catch (NoClassDefFoundError e) {
 
     }
     this.classHooks = new HashMap<String, Boolean>();
     for (String unhookedClass : unhookedClasses) {
       try {
-        ////Log.d("MAGNUM", "HUCC: " + unhookedClass);
+        Log.d("MAGNUM", "HUCC: " + unhookedClass);
       } catch (NoClassDefFoundError e) {
       }
       classHooks.put(unhookedClass, hook);

@@ -150,12 +150,12 @@ public abstract class Registry {
         methodHookConfig.remove(cfg.getMethodName());
         if ((unhookedClasses.isEmpty()) && (methodHookConfig.isEmpty()))
           triggered = true;
-        ////Log.d(Constants.TAG, "cfg received: " + triggered);
+        Log.d(Constants.TAG, "cfg received: " + triggered);
         return;
       } else if (cfg.getType() != MethodHookConfig.TRIGGER) {
         numMethodInvocations.put(cfg.getMethodName(), 0);
         triggered = false;
-        ////Log.d(Constants.TAG, "cfg received: " + triggered);
+        Log.d(Constants.TAG, "cfg received: " + triggered);
       } else {
         if (!ready)
           triggered = false;
@@ -166,7 +166,7 @@ public abstract class Registry {
 
   public static int addInvocation(String methodName) {
     synchronized (numMethodInvocations) {
-      ////Log.d(Constants.TAG, "ADDING " + methodName);
+      Log.d(Constants.TAG, "ADDING " + methodName);
       if (!numMethodInvocations.containsKey(methodName))
         numMethodInvocations.put(methodName, 0);
       int numIvocations = numMethodInvocations.get(methodName);
@@ -183,19 +183,19 @@ public abstract class Registry {
   }
 
   public static boolean checkHookPackage(String pkg) {
-    ////Log.d(Constants.TAG, "Checking " + (pureWhiteList ? "witelist" :
+    // Log.d(Constants.TAG, "Checking " + (pureWhiteList ? "witelist" :
     // "blacklist") + " PKG Hook for: " + pkg);
     if (globalPackages.contains(pkg)) {
-      ////Log.d(Constants.TAG, "Result: " + pureWhiteList);
+      // Log.d(Constants.TAG, "Result: " + pureWhiteList);
       return pureWhiteList;
     }
     for (String str : globalPackageWildcards) {
       if (pkg.startsWith(str)) {
-        ////Log.d(Constants.TAG, "Result: " + pureWhiteList);
+        // Log.d(Constants.TAG, "Result: " + pureWhiteList);
         return pureWhiteList;
       }
     }
-    ////Log.d(Constants.TAG, "Result: " + !pureWhiteList);
+    // Log.d(Constants.TAG, "Result: " + !pureWhiteList);
     return !pureWhiteList;
   }
 
@@ -203,24 +203,24 @@ public abstract class Registry {
     boolean checkPkg = checkHookPackage(clazz.getPackage().getName());
 
     String className = clazz.getName();
-    ////Log.d(Constants.TAG, "Checking " + (pureWhiteList ? "witelist" :
+    // Log.d(Constants.TAG, "Checking " + (pureWhiteList ? "witelist" :
     // "blacklist") + " Class Hook for: " + className);
     if (checkPkg == pureWhiteList) {
-      ////Log.d(Constants.TAG, "Result: " + pureWhiteList);
+      // Log.d(Constants.TAG, "Result: " + pureWhiteList);
       return pureWhiteList;
     }
 
     if (globalClasses.contains(className)) {
-      ////Log.d(Constants.TAG, "Result: " + pureWhiteList);
+      // Log.d(Constants.TAG, "Result: " + pureWhiteList);
       return pureWhiteList;
     }
     for (String cName : globalClassesWildcards) {
       if (className.startsWith(cName)) {
-        ////Log.d(Constants.TAG, "Result: " + pureWhiteList);
+        // Log.d(Constants.TAG, "Result: " + pureWhiteList);
         return pureWhiteList;
       }
     }
-    ////Log.d(Constants.TAG, "Result: " + !pureWhiteList);
+    // Log.d(Constants.TAG, "Result: " + !pureWhiteList);
     return !pureWhiteList;
   }
 
@@ -236,23 +236,23 @@ public abstract class Registry {
     wildcard.add("*");
     String genericMname = JavaNameHelper.getUniqueMethodName(method.getDeclaringClass().getName(), method.getName(),
         wildcard);
-    ////Log.d(Constants.TAG, "Checking " + (pureWhiteList ? "witelist" :
+    // Log.d(Constants.TAG, "Checking " + (pureWhiteList ? "witelist" :
     // "blacklist") + " Method Hook for: " + mName);
     if (checkClass == pureWhiteList) {
-      ////Log.d(Constants.TAG, "Result: " + pureWhiteList);
+      // Log.d(Constants.TAG, "Result: " + pureWhiteList);
       return pureWhiteList;
     }
     if (globalMethods.contains(mName) || globalMethods.contains(genericMname)) {
-      ////Log.d(Constants.TAG, "Result: " + pureWhiteList);
+      // Log.d(Constants.TAG, "Result: " + pureWhiteList);
       return pureWhiteList;
     }
     for (String m : globalMethodWildcards)
       if (mName.startsWith(m)) {
-        ////Log.d(Constants.TAG, "Result: " + pureWhiteList);
+        // Log.d(Constants.TAG, "Result: " + pureWhiteList);
         return pureWhiteList;
       }
 
-    ////Log.d(Constants.TAG, "Result: " + !pureWhiteList);
+    // Log.d(Constants.TAG, "Result: " + !pureWhiteList);
     return !pureWhiteList;
   }
 }

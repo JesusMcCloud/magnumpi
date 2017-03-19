@@ -37,14 +37,14 @@ public abstract class Commander {
     if (cmd instanceof HookUnhookPackageCommand) {
       HookUnhookPackageCommand command = (HookUnhookPackageCommand) cmd;
       if (command.getPackageName().equals(Registry.getPackageName()) && !(command.isHook())) {
-        ////Log.d(Constants.TAG, "HOOK Rxd UnhookCommand");
+        Log.d(Constants.TAG, "HOOK Rxd UnhookCommand");
         Registry.getHook().unhookAll();
         Registry.getBridge().disconnect();
         
       }
 
     } else if (cmd instanceof BWListCommand) {
-      ////Log.d(Constants.TAG, "HOOK Rxd BWListCommand");
+      Log.d(Constants.TAG, "HOOK Rxd BWListCommand");
       BWListCommand command = (BWListCommand) cmd;
       Registry.pureWhiteList = command.isPureWhiteList();
       Registry.globalPackages = command.getPackages();
@@ -56,13 +56,13 @@ public abstract class Commander {
       Registry.handshake.incrementAndGet();
     } else if (cmd instanceof HookUnhookClassCommand) {
       HookUnhookClassCommand command = (HookUnhookClassCommand) cmd;
-      ////Log.d(Constants.TAG, "CLASSUNHOOK");
-      ////Log.d(Constants.TAG, command.toString());
+      Log.d(Constants.TAG, "CLASSUNHOOK");
+      Log.d(Constants.TAG, command.toString());
       if (command.getPkg().equals(Registry.getPackageName())) {
         for (String className : command.getUnhookedClasses().keySet())
           if (command.getUnhookedClasses().get(className)) {
             Registry.addUnhookedClass(className);
-            ////Log.d(Constants.TAG, "Unhooking " + className);
+            Log.d(Constants.TAG, "Unhooking " + className);
           } else
             Registry.removeUnhookedClass(className);
         // Registry.ready = true;
@@ -71,14 +71,14 @@ public abstract class Commander {
     } else if (cmd instanceof HookUnhookMethodCommand) {
       HookUnhookMethodCommand command = (HookUnhookMethodCommand) cmd;
       if (command.getPkg().equals(Registry.getPackageName())) {
-        ////Log.d(Constants.TAG, "HOOKUNHOOKCONFIG");
+        Log.d(Constants.TAG, "HOOKUNHOOKCONFIG");
         for (MethodHookConfig cfg : command.getMethodHooks()) {
-       //   try {
-            ////Log.d(Constants.TAG, "CONF: " + cfg.toJSonString());
-        //  } catch (JSONException e) {
+          try {
+            Log.d(Constants.TAG, "CONF: " + cfg.toJSonString());
+          } catch (JSONException e) {
             // TODO Auto-generated catch block
-      //      e.printStackTrace();
-      //    }
+            e.printStackTrace();
+          }
           Registry.putMethodHookConfig(cfg);
         }
         Registry.ready = true;

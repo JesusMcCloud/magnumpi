@@ -41,7 +41,7 @@ public class HookSideBridgeWriter implements Callable<Boolean> {
 
   @Override
   public Boolean call() {
-    ////Log.d(Constants.TAG, "HOOK Txd START");
+    Log.d(Constants.TAG, "HOOK Txd START");
     start();
     return true;
   }

@@ -61,7 +61,7 @@ public class ServiceSideBridge {
     if (!connected)
       return;
 
-    ////Log.d("MAGNUM", "ServiceSideBridge: trying to exec: " + cmd);
+    Log.d("MAGNUM", "ServiceSideBridge: trying to exec: " + cmd);
     for (Connection connection : connections.values())
       connection.supervisor.execute(cmd);
   }

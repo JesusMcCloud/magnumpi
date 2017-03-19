@@ -47,7 +47,7 @@ public class HookSideBridge implements Constants {
 
   public void retreiveInitCommand(String pkgName) throws IOException, ClassNotFoundException {
     socket = new LocalSocket();
-    ////Log.d(TAG, "Trying to Connect to: " + NAME_SOCKET + "." + pkgName);
+    Log.d(TAG, "Trying to Connect to: " + NAME_SOCKET + "." + pkgName);
     socket.connect(new LocalSocketAddress(NAME_SOCKET + "." + pkgName));
     // InitHookCommand cmd = (InitHookCommand) new
     // ObjectInputStream(socket.getInputStream()).readObject();
@@ -64,7 +64,7 @@ public class HookSideBridge implements Constants {
   }
 
   public void disconnect() {
-    ////Log.d(DEBUG, "HookSideBridge DISCONNECT!");
+    Log.d(DEBUG, "HookSideBridge DISCONNECT!");
     if (!running) 
       return;
     

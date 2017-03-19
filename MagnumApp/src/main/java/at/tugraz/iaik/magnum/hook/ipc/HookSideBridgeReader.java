@@ -54,7 +54,7 @@ public class HookSideBridgeReader implements Callable<Boolean> {
         Command buffer;
 
         while ((buffer = (Command) objectStream.readObject()) != null) {
-          ////Log.d(Constants.TAG, "HOOK Rxd: " + buffer.getClass().getSimpleName());
+          Log.d(Constants.TAG, "HOOK Rxd: " + buffer.getClass().getSimpleName());
           Commander.handleCommand(buffer);
         }
       }
