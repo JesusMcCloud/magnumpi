@@ -47,7 +47,6 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import at.tugraz.iaik.magnum.client.gui.utils.*;
-import javafx.util.Pair;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -57,6 +56,8 @@ import javax.swing.table.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 
@@ -1673,7 +1674,7 @@ public class EvesDropper {
 
   private void findPasswords()
   {
-	  Pair<String, String> pair1 = new Pair<String, String>("javax.crypto.spec.SecretKeySpec", "<init>");
+	  Pair<String, String> pair1 = new ImmutablePair<String, String>("javax.crypto.spec.SecretKeySpec", "<init>");
 	  List<Pair<String, String>> list = new ArrayList<Pair<String, String>>();
 	  list.add(pair1);
 
